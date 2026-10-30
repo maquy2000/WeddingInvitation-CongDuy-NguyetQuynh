@@ -29,6 +29,10 @@ for (const [file, content] of Object.entries(files)) {
   assert.strictEqual(content, current, `${file} chưa đồng bộ với config-setting.js`);
 }
 
+// Các kiểm tra dưới đây cần cả 2 thiệp bật, dù dữ liệu thật trên đĩa có đang tắt thiệp nào.
+model.families.groom.enabled = true;
+model.families.bride.enabled = true;
+
 // Thiệp nhà nào thì tên + thông tin nhà đó đứng trước.
 const g = M.buildConfig(model, "groom");
 const b = M.buildConfig(model, "bride");
@@ -51,8 +55,8 @@ for (const side of M.SIDES) {
 
 // Tắt thiệp nhà trai: thiệp nhà trai không mang dữ liệu, thiệp nhà gái ẩn thông tin nhà trai.
 const off = M.normalizeModel(loadScript("assets/js/config-setting.js", "WEDDING_SETTING"));
-assert.strictEqual(off.families.groom.enabled, true, "mặc định thiệp phải bật");
 off.families.groom.enabled = false;
+off.families.bride.enabled = true;
 assert.deepStrictEqual(M.buildConfig(off, "groom"), { side: "groom", enabled: false });
 const brideOnly = M.buildConfig(off, "bride");
 assert.deepStrictEqual(brideOnly.events.map(e => e.key), ["bride"]);
@@ -92,6 +96,7 @@ assert.ok(!Object.values(files).join("").includes("../"), "config còn đường
 const empty = M.normalizeModel(undefined);
 assert.strictEqual(empty.ui.sections.home, true);
 assert.strictEqual(empty.families.bride.label, "Nhà gái");
+assert.strictEqual(empty.families.groom.enabled, true, "mặc định thiệp phải bật");
 assert.deepStrictEqual(empty.album, []);
 
 console.log("OK - setting-model");
