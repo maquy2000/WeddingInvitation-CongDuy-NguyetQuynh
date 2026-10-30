@@ -61,6 +61,7 @@ Trang Setting chỉ đọc `config-setting.js`. Mỗi lần lưu, 2 file thiệp
 | Thông tin chung | Tên chú rể, cô dâu; nhạc nền; tự cuộn trang |
 | Nhà trai & nhà gái | Bật/tắt thiệp từng nhà, địa chỉ, link Google Maps, ảnh bản đồ, giờ tiệc (cỗ), giờ lễ, ngày đếm ngược, ngày hiển thị, tiêu đề lời mời |
 | Bìa | Dòng chữ, nút mở thiệp, ảnh bìa |
+| Ảnh nền | Ảnh nền nội dung thiệp, ảnh trang trí khung trang chủ (wave). Để trống = ảnh mặc định |
 | Trang chủ & đếm ngược | Lời giới thiệu, mô tả, bật/tắt đồng hồ |
 | Ảnh cặp đôi & lời mời | Ảnh cặp đôi, khung lời mời |
 | Buổi lễ | Tiêu đề phần lễ của 2 nhà |
@@ -71,11 +72,12 @@ Trang Setting chỉ đọc `config-setting.js`. Mỗi lần lưu, 2 file thiệp
 
 Mỗi phần có checkbox **Hiển thị phần này**, áp dụng cho cả 2 thiệp.
 
-### Xuất / nhập dữ liệu
+### Xuất / nhập dữ liệu (sao lưu đầy đủ)
 
-- **Xuất dữ liệu**: tải toàn bộ nội dung Setting về file `wedding-setting-YYYYMMDD.json` (để sao lưu hoặc chuyển sang project khác).
-- **Nhập dữ liệu…**: nạp lại từ file `.json` đã xuất, hoặc trực tiếp từ file `assets/js/config-setting.js` của một project khác (kể cả bản code cũ). Trường mới chưa có trong dữ liệu cũ sẽ lấy giá trị mặc định. Nhập xong bấm **Lưu** để ghi file.
-- File xuất chỉ chứa **đường dẫn** ảnh/nhạc, không chứa file ảnh/nhạc. Khi chuyển project, chép kèm thư mục `assets/images/` và `assets/audio/`.
+- **Xuất dữ liệu**: tải 1 file `wedding-backup-YYYYMMDD.json` gồm toàn bộ nội dung Setting **và mọi ảnh/nhạc đang dùng** (ảnh bìa, ảnh nền, wave, ảnh cặp đôi, ảnh mừng cưới, bản đồ, album, nhạc nền). File có thể nặng vài chục MB vì chứa cả nhạc. Link `https://...` không được xuất kèm. File nào không tìm thấy sẽ được báo tên.
+- **Nhập dữ liệu…**: chọn file sao lưu, trang chép lại ảnh/nhạc vào đúng đường dẫn cũ trong project (ghi đè file trùng tên, có hỏi xác nhận) rồi nạp dữ liệu. Bấm **Lưu** để cập nhật 2 thiệp.
+- Nhập cũng nhận file `config-setting.js` của project khác (kể cả bản code cũ); khi đó chỉ có dữ liệu, ảnh/nhạc phải chép tay. Trường mới chưa có trong dữ liệu cũ sẽ lấy giá trị mặc định.
+- Xuất/nhập kèm ảnh/nhạc cần Chrome/Edge và chọn thư mục gốc của project.
 
 **Cập nhật code mới cho một bản copy cũ** (giữ nguyên nội dung thiệp của bản copy):
 

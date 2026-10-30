@@ -37,7 +37,7 @@
       padding: 24px;
       background:
         linear-gradient(rgba(255, 250, 244, 0.58), rgba(255, 250, 244, 0.82)),
-        url("assets/images/backgrounds/background1.svg") center / cover fixed no-repeat,
+        var(--bg-image, url("assets/images/backgrounds/background1.svg")) center / cover fixed no-repeat,
         #faf5ef;
     }
 
@@ -46,7 +46,7 @@
       text-align: center;
       background:
         linear-gradient(rgba(255, 252, 248, 0.86), rgba(255, 252, 248, 0.92)),
-        url("assets/images/backgrounds/section-wave.svg") center / cover no-repeat;
+        var(--wave-image, url("assets/images/backgrounds/section-wave.svg")) center / cover no-repeat;
       border: 1px solid var(--border);
       border-radius: 36px;
       padding: clamp(32px, 6vw, 64px);
@@ -182,12 +182,19 @@
   </main>
 
   <!-- Cả 2 file config đều gán window.WEDDING_CONFIG, nên đọc cờ enabled ngay sau mỗi file. -->
-  <script src="assets/js/config-groom.js?v=20261031"></script>
-  <script>window.CARD_ENABLED = { groom: window.WEDDING_CONFIG.enabled !== false };</script>
-  <script src="assets/js/config-bride.js?v=20261031"></script>
+  <script src="assets/js/config-groom.js?v=20261101"></script>
+  <script>
+    window.CARD_ENABLED = { groom: window.WEDDING_CONFIG.enabled !== false };
+    window.CARD_IMAGES = window.WEDDING_CONFIG.images;
+  </script>
+  <script src="assets/js/config-bride.js?v=20261101"></script>
   <script>
     // Thiệp nào tắt trong Setting thì ẩn. Chỉ còn 1 thiệp thì chuyển thẳng tới thiệp đó.
     CARD_ENABLED.bride = WEDDING_CONFIG.enabled !== false;
+    // Ảnh nền chung của 2 thiệp (thiệp đã tắt không mang dữ liệu nên lấy từ thiệp còn lại).
+    const images = WEDDING_CONFIG.images || CARD_IMAGES || {};
+    if (images.background) document.documentElement.style.setProperty("--bg-image", `url("${encodeURI(images.background)}")`);
+    if (images.wave) document.documentElement.style.setProperty("--wave-image", `url("${encodeURI(images.wave)}")`);
     const cards = [...document.querySelectorAll("[data-side]")].filter(card => {
       card.hidden = !CARD_ENABLED[card.dataset.side];
       return !card.hidden;

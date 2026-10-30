@@ -78,16 +78,32 @@ assert.strictEqual(M.orientationOf(0, 0), "");
 
 // Nhập dữ liệu: đọc được cả file .json đã xuất lẫn file config-setting.js, file lạ thì báo lỗi.
 const settingText = fs.readFileSync(path.join(root, "assets/js/config-setting.js"), "utf8");
-assert.deepStrictEqual(M.parseSettingText(settingText), model0());
-assert.deepStrictEqual(M.parseSettingText(JSON.stringify(model0(), null, 2)), model0());
+assert.deepStrictEqual(M.parseSettingText(settingText), { model: model0(), files: {} });
+assert.deepStrictEqual(M.parseSettingText(JSON.stringify(model0(), null, 2)), { model: model0(), files: {} });
 const oldFormat = JSON.parse(JSON.stringify(model0()));
 delete oldFormat.families.groom.enabled;
 oldFormat.album.forEach(item => delete item.orientation);
-const upgraded = M.parseSettingText(JSON.stringify(oldFormat));
+const upgraded = M.parseSettingText(JSON.stringify(oldFormat)).model;
 assert.strictEqual(upgraded.families.groom.enabled, true, "dữ liệu bản cũ phải được bổ sung trường mới");
 assert.ok(upgraded.album.every(item => item.orientation === ""));
 assert.throws(() => M.parseSettingText("không phải json"));
 assert.throws(() => M.parseSettingText(JSON.stringify({ foo: 1 })));
+
+// File sao lưu: liệt kê đủ ảnh/nhạc đang dùng, nhập lại được cả dữ liệu lẫn file, bỏ đường dẫn ra ngoài project.
+const backupModel = model0();
+backupModel.images.background = "assets/images/bg.png";
+backupModel.images.wave = "https://example.com/wave.png";
+const paths = M.assetPaths(backupModel);
+for (const p of [backupModel.images.cover, backupModel.images.couple, "assets/images/bg.png", backupModel.music.src,
+  backupModel.families.groom.image, backupModel.families.bride.image, ...backupModel.album.map(i => i.src)]) {
+  assert.ok(paths.includes(p), `thiếu ${p} trong danh sách xuất`);
+}
+assert.ok(!paths.includes("https://example.com/wave.png"), "link ngoài không cần xuất");
+assert.strictEqual(new Set(paths).size, paths.length);
+const backupFiles = { "assets/images/bg.png": "data:image/png;base64,AAAA", "../evil.js": "data:text/plain;base64,AA", "assets/../x": "data:,x" };
+const restored = M.parseSettingText(M.serializeBackup(backupModel, backupFiles));
+assert.deepStrictEqual(restored.model, JSON.parse(JSON.stringify(M.normalizeModel(backupModel))));
+assert.deepStrictEqual(restored.files, { "assets/images/bg.png": "data:image/png;base64,AAAA" });
 
 // Đường dẫn trong config phải tính từ thư mục gốc, không có "../".
 assert.ok(!Object.values(files).join("").includes("../"), "config còn đường dẫn ../");

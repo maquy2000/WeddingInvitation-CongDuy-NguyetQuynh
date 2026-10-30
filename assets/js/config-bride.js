@@ -15,7 +15,7 @@ window.WEDDING_CONFIG = {
   },
   "music": {
     "enabled": true,
-    "src": "assets/audio/Photograph.mp3"
+    "src": "assets/audio/Photograph-1.mp3"
   },
   "text": {
     "coverEyebrow": "Wedding Invitation",
@@ -37,9 +37,11 @@ window.WEDDING_CONFIG = {
     "invitationTitle": "Tiệc cưới tại nhà gái"
   },
   "images": {
-    "cover": "assets/images/backgrounds/background1.svg",
+    "cover": "assets/images/bg2.png",
     "couple": "assets/images/main.jpg",
-    "gift": "assets/images/d3.svg"
+    "gift": "assets/images/d3.svg",
+    "background": "assets/images/bg2.png",
+    "wave": "assets/images/wave2.png"
   },
   "ui": {
     "autoScroll": true,
@@ -71,8 +73,8 @@ window.WEDDING_CONFIG = {
         "title": "Tiệc cưới - Nhà gái",
         "time": "11:30, 14/11/2026"
       },
-      "address": "Số 170 Ngô Gia Tự, Phường Phú Yên, Tỉnh Đắk Lắk",
-      "mapUrl": "https://www.google.com/maps/place/170+Ng%C3%B4+Gia+T%E1%BB%B1,+Ph%C3%BA+Y%C3%AAn,+%C4%90%E1%BA%AFk+L%E1%BA%AFk,+Vi%E1%BB%87t+Nam/@13.0624669,109.3258574,974m/data=!3m2!1e3!4b1!4m6!3m5!1s0x316fee868ec734d7:0x331e0efa8ed2c5f0!8m2!3d13.0624669!4d109.3258574!16s%2Fg%2F11f1mj_tgt?entry=ttu&g_ep=EgoyMDI2MTAyNy4wIKXMDSoASAFQAw%3D%3D",
+      "address": "Số 192 Ngô Gia Tự, Phường Phú Yên, Tỉnh Đắk Lắk",
+      "mapUrl": "https://www.google.com/maps/place/192+Ng%C3%B4+Gia+T%E1%BB%B1,+Ph%C3%BA+Y%C3%AAn,+%C4%90%E1%BA%AFk+L%E1%BA%AFk,+Vi%E1%BB%87t+Nam/@13.0637299,109.325023,974m/data=!3m2!1e3!4b1!4m6!3m5!1s0x316fee86d8c124d3:0x2465adcc2f50c75a!8m2!3d13.0637299!4d109.3275979!16s%2Fg%2F11f57qgzn2?entry=ttu&g_ep=EgoyMDI2MTAyNy4wIKXMDSoASAFQAw%3D%3D",
       "image": "assets/images/bride.png",
       "imageAlt": "Bản đồ nhà gái"
     }

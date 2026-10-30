@@ -20,7 +20,7 @@ body {
   color: var(--text);
   background:
     linear-gradient(rgba(255, 250, 244, 0.4), rgba(255, 250, 244, 0.6)),
-    url("../images/backgrounds/background1.svg") center / cover fixed no-repeat,
+    var(--bg-image, url("../images/backgrounds/background1.svg")) center / cover fixed no-repeat,
     var(--bg);
 }
 a { text-decoration: none; }
@@ -102,7 +102,7 @@ button { cursor: pointer; }
   text-align: center;
   background:
     linear-gradient(rgba(255, 252, 248, 0.5), rgba(255, 252, 248, 0.7)),
-    url("../images/backgrounds/section-wave.svg") center / cover no-repeat;
+    var(--wave-image, url("../images/backgrounds/section-wave.svg")) center / cover no-repeat;
 }
 .eyebrow {
   margin: 0 0 10px;

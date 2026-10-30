@@ -56,6 +56,15 @@ const sections = [
     ]
   },
   {
+    id: "backgrounds",
+    title: "Ảnh nền",
+    note: "Để trống = dùng ảnh mặc định. Áp dụng cho cả 2 thiệp và trang chọn thiệp.",
+    fields: [
+      { path: "images.background", label: "Ảnh nền nội dung thiệp (sau khi mở thiệp)", type: "image", wide: true },
+      { path: "images.wave", label: "Ảnh trang trí khung trang chủ (wave)", type: "image", wide: true }
+    ]
+  },
+  {
     id: "home",
     title: "Trang chủ & đếm ngược",
     toggle: "ui.sections.home",
@@ -606,28 +615,102 @@ function download(name, content) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-// Xuất toàn bộ dữ liệu Setting ra 1 file .json để chuyển sang project khác (ảnh/nhạc chỉ lưu đường dẫn).
-function exportData() {
-  const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-  const url = URL.createObjectURL(new Blob([JSON.stringify(model, null, 2)], { type: "application/json" }));
-  el("a", { href: url, download: `wedding-setting-${stamp}.json` }).click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  setStatus("Đã xuất dữ liệu. Ảnh và nhạc không nằm trong file, chỉ có đường dẫn.", "ok");
+// Đọc file trong project: qua thư mục đã chọn nếu có (mở bằng file:// không fetch được), không thì tải qua URL.
+async function readProjectFile(path) {
+  if (rootDir) {
+    const parts = path.split("/");
+    const name = parts.pop();
+    return (await (await getDir(parts.join("/"))).getFileHandle(name)).getFile();
+  }
+  const response = await fetch(assetUrl(path));
+  if (!response.ok) throw new Error(`${response.status}`);
+  return response.blob();
 }
 
+function toDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+}
+
+// Xuất 1 file sao lưu gồm dữ liệu Setting và mọi ảnh/nhạc đang dùng, nhập lại ở project khác không mất gì.
+async function exportData() {
+  if (window.showDirectoryPicker && !(await ensureFolder())) {
+    setStatus("Chưa xuất: cần chọn thư mục gốc của project để đọc ảnh/nhạc.", "error");
+    return;
+  }
+  setStatus("Đang xuất dữ liệu và ảnh/nhạc...");
+  const files = {};
+  const missing = [];
+  for (const path of SettingModel.assetPaths(model)) {
+    try {
+      files[path] = await toDataUrl(await readProjectFile(path));
+    } catch {
+      missing.push(path);
+    }
+  }
+
+  const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const blob = new Blob([SettingModel.serializeBackup(model, files)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  el("a", { href: url, download: `wedding-backup-${stamp}.json` }).click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+  const size = (blob.size / 1024 / 1024).toFixed(1);
+  const count = Object.keys(files).length;
+  if (missing.length) {
+    setStatus(`Đã xuất (${size} MB, ${count} file ảnh/nhạc). Không tìm thấy, không xuất được: ${missing.join(", ")}`, "error");
+  } else {
+    setStatus(`Đã xuất đầy đủ dữ liệu và ${count} file ảnh/nhạc (${size} MB).`, "ok");
+  }
+}
+
+// Nhập file sao lưu: chép ảnh/nhạc vào đúng đường dẫn trong project rồi nạp dữ liệu (config chỉ ghi khi bấm Lưu).
 async function importData() {
   const [file] = await chooseFiles(".json,.js", false);
   if (!file) return;
   if (dirty && !confirm("Bỏ các thay đổi chưa lưu và nhập dữ liệu từ file?")) return;
+
+  let imported;
   try {
-    model = SettingModel.parseSettingText(await file.text());
+    imported = SettingModel.parseSettingText(await file.text());
   } catch (error) {
     setStatus(`Nhập thất bại: ${error.message}`, "error");
     return;
   }
+
+  const paths = Object.keys(imported.files);
+  let note = "";
+  if (paths.length && !window.showDirectoryPicker) {
+    note = ` Trình duyệt này không ghi được file nên ${paths.length} ảnh/nhạc chưa được chép vào project, hãy dùng Chrome/Edge.`;
+  } else if (paths.length) {
+    if (!(await ensureFolder())) {
+      setStatus("Chưa nhập: cần chọn thư mục gốc của project để chép ảnh/nhạc.", "error");
+      return;
+    }
+    const list = paths.slice(0, 15).map(path => `• ${path}`).join("\n")
+      + (paths.length > 15 ? `\n… và ${paths.length - 15} file khác` : "");
+    if (!confirm(`Chép ${paths.length} file ảnh/nhạc vào thư mục "${rootDir.name}"? File trùng tên sẽ bị ghi đè.\n\n${list}`)) {
+      setStatus("Đã hủy nhập.");
+      return;
+    }
+    try {
+      for (const path of paths) await writeFile(path, await (await fetch(imported.files[path])).blob());
+    } catch (error) {
+      setStatus(`Nhập thất bại khi chép ảnh/nhạc: ${error.message}`, "error");
+      return;
+    }
+    await refreshFileLists();
+    note = ` Đã chép ${paths.length} file ảnh/nhạc vào project.`;
+  }
+
+  model = imported.model;
   renderForm();
   markDirty();
-  setStatus(`Đã nhập dữ liệu từ "${file.name}". Kiểm tra lại rồi bấm Lưu để cập nhật 2 thiệp.`, "ok");
+  setStatus(`Đã nhập dữ liệu từ "${file.name}".${note} Kiểm tra lại rồi bấm Lưu để cập nhật 2 thiệp.`, "ok");
 }
 
 async function save() {

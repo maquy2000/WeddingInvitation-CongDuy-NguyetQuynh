@@ -74,6 +74,11 @@ function escapeHtml(value) {
   })[char]);
 }
 
+// Ảnh nền đổi qua biến CSS, để trống thì style.css dùng ảnh mặc định.
+function cssImage(name, path) {
+  if (path) document.documentElement.style.setProperty(name, `url("${asset(path)}")`);
+}
+
 function setHidden(id, hidden) {
   const el = $(id);
   if (!el) return;
@@ -159,6 +164,8 @@ function renderConfig() {
   attr("coverImage", "src", asset(config.images.cover));
   attr("coupleImage", "src", asset(config.images.couple));
   attr("giftImage", "src", asset(config.images.gift));
+  cssImage("--bg-image", config.images.background);
+  cssImage("--wave-image", config.images.wave);
   if (musicEnabled) attr("bgMusic", "src", asset(config.music.src));
 
   applyVisibilityConfig();
