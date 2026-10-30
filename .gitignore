@@ -1,0 +1,16 @@
+# Tài liệu nháp local
+docs/
+
+# File rác của hệ điều hành
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Cấu hình editor / công cụ cá nhân
+.vscode/
+.idea/
+.claude/settings.local.json
+
+# File tạm
+*.tmp
+*.log
