@@ -12,6 +12,7 @@ let dirty = false;
 
 const familyFields = [
   { path: "enabled", label: "Bật thiệp của nhà này", type: "checkbox", wide: true },
+  { path: "showOtherFamily", label: "Hiện cả thông tin lễ của nhà kia (bỏ chọn: chỉ hiện lễ, địa chỉ, bản đồ của nhà này)", type: "checkbox", wide: true },
   { path: "label", label: "Tên hiển thị (badge)" },
   { path: "invitationTitle", label: "Tiêu đề khung lời mời", hint: "Ví dụ: Tiệc cưới tại nhà trai" },
   { path: "dates.weddingDate", label: "Ngày giờ đếm ngược (giờ VN)", type: "datetime" },

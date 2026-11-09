@@ -8,6 +8,8 @@
   function defaultFamily(key) {
     return {
       enabled: true,
+      // false = thiệp nhà này chỉ hiện lễ của nhà mình, không mang thông tin/vị trí nhà kia.
+      showOtherFamily: true,
       label: key === "groom" ? "Nhà trai" : "Nhà gái",
       invitationTitle: "",
       dates: { weddingDate: "", coverDate: "", displayDate: "" },
@@ -117,6 +119,7 @@
 
   // Thiệp nhà nào thì tên và thông tin nhà đó đứng trước.
   // Nhà nào tắt thiệp: thiệp đó chỉ còn cờ enabled=false (không mang dữ liệu), thiệp còn lại ẩn thông tin nhà đó.
+  // showOtherFamily=false: thiệp nhà đó chỉ có lễ của nhà mình.
   function buildConfig(model, side) {
     const other = side === "groom" ? "bride" : "groom";
     const own = model.families[side];
@@ -141,7 +144,7 @@
         sections: { ...model.ui.sections },
         blocks: { ...model.ui.blocks }
       },
-      events: [side, other]
+      events: (own.showOtherFamily ? [side, other] : [side])
         .filter(key => model.families[key].enabled)
         .map(key => eventFromFamily(key, model.families[key])),
       album: model.album.map(item => ({ src: item.src, alt: item.alt, orientation: item.orientation })),

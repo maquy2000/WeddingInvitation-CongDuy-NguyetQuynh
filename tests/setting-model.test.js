@@ -63,6 +63,18 @@ assert.deepStrictEqual(brideOnly.events.map(e => e.key), ["bride"]);
 assert.ok(!JSON.stringify(brideOnly).includes(off.families.groom.ceremony.title), "thiệp nhà gái còn thông tin lễ nhà trai");
 assert.ok(!JSON.stringify(brideOnly).includes(off.families.groom.image), "thiệp nhà gái còn bản đồ nhà trai");
 
+// Thiệp nhà trai chọn chỉ hiện lễ nhà mình: không mang thông tin/vị trí nhà gái; thiệp nhà gái vẫn hiện cả 2 nhà.
+const own = M.normalizeModel(loadScript("assets/js/config-setting.js", "WEDDING_SETTING"));
+own.families.groom.enabled = true;
+own.families.bride.enabled = true;
+own.families.groom.showOtherFamily = false;
+own.families.bride.address = "Địa chỉ bí mật nhà gái";
+const groomOwn = M.buildConfig(own, "groom");
+assert.deepStrictEqual(groomOwn.events.map(e => e.key), ["groom"]);
+assert.ok(!JSON.stringify(groomOwn).includes("Địa chỉ bí mật nhà gái"), "thiệp nhà trai còn địa chỉ nhà gái");
+assert.ok(!JSON.stringify(groomOwn).includes(own.families.bride.mapUrl + '"'), "thiệp nhà trai còn link bản đồ nhà gái");
+assert.deepStrictEqual(M.buildConfig(own, "bride").events.map(e => e.key), ["bride", "groom"]);
+
 // Hướng ảnh album: giữ giá trị hợp lệ, giá trị lạ/thiếu thành "" (thiệp tự đo).
 const albumModel = M.normalizeModel({ album: [
   { src: "a.jpg", orientation: "landscape" },
@@ -113,6 +125,7 @@ const empty = M.normalizeModel(undefined);
 assert.strictEqual(empty.ui.sections.home, true);
 assert.strictEqual(empty.families.bride.label, "Nhà gái");
 assert.strictEqual(empty.families.groom.enabled, true, "mặc định thiệp phải bật");
+assert.strictEqual(empty.families.groom.showOtherFamily, true, "mặc định thiệp hiện lễ cả 2 nhà");
 assert.deepStrictEqual(empty.album, []);
 
 console.log("OK - setting-model");

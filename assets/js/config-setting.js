@@ -90,7 +90,8 @@ window.WEDDING_SETTING = {
   },
   "families": {
     "groom": {
-      "enabled": false,
+      "enabled": true,
+      "showOtherFamily": false,
       "label": "Nhà trai",
       "invitationTitle": "Tiệc cưới tại nhà trai",
       "dates": {
@@ -113,6 +114,7 @@ window.WEDDING_SETTING = {
     },
     "bride": {
       "enabled": true,
+      "showOtherFamily": false,
       "label": "Nhà gái",
       "invitationTitle": "Tiệc cưới tại nhà gái",
       "dates": {
