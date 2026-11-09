@@ -30,6 +30,7 @@ assets/
   css/style.css               Giao diện thiệp
   images/                     Ảnh (album thêm từ Setting nằm ở images/album/)
   audio/                      Nhạc nền
+scripts/build-site.js         Tạo bản deploy (_site) từ Setting
 tests/setting-model.test.js   Test
 ```
 
@@ -93,7 +94,11 @@ Bỏ chọn **Bật thiệp của nhà này** trong phần Nhà trai & nhà gái
 - Link thiệp nhà đó (`Groom/` hoặc `Bride/`) chỉ hiện *"Thiệp chưa sẵn sàng"*; file `config-<nhà>.js` không còn dữ liệu.
 - Trang chọn thiệp ẩn thiệp đó. Chỉ còn 1 thiệp thì tự chuyển thẳng tới thiệp còn lại.
 - Thiệp nhà còn lại ẩn mọi thông tin của nhà đã tắt (lễ, địa chỉ, bản đồ).
-- Thông tin nhà đã tắt vẫn nằm trong `config-setting.js` (cũng được publish). Nếu là thông tin nhạy cảm, hãy xóa trắng trước khi push.
+- Thông tin nhà đã tắt vẫn nằm trong `config-setting.js` trên máy/trong git, nhưng **không được publish**: bản deploy không có `config-setting.js`, trang Setting và ảnh bản đồ của nhà đã tắt. Lưu ý repo GitHub công khai thì ai cũng đọc được file trong repo.
+
+### Chỉ hiện lễ của nhà mình
+
+Bỏ chọn **Hiện cả thông tin lễ của nhà kia** ở nhà nào thì thiệp nhà đó chỉ có lễ, địa chỉ, bản đồ của nhà mình; file thiệp không chứa thông tin nhà kia. Thiệp nhà kia vẫn được publish ở link riêng (`Groom/` hoặc `Bride/`), ai biết link vẫn mở được.
 
 ### Album: ảnh dọc / ngang / vuông
 
@@ -136,7 +141,7 @@ node tests/setting-model.test.js
 
 Test kiểm tra:
 
-- 2 file thiệp đang đồng bộ với `config-setting.js`.
+- Bản deploy tạo 2 thiệp đúng theo `config-setting.js` và không chứa dữ liệu gốc / trang Setting.
 - Thứ tự tên và thứ tự nhà đúng theo từng thiệp.
 - Sửa Setting thì cả 2 thiệp đổi theo.
 - Không còn đường dẫn `../`.
@@ -147,8 +152,11 @@ Project deploy tự động bằng GitHub Actions ([.github/workflows/deploy.yml
 
 1. **Một lần duy nhất**: trên GitHub, vào `Settings` → `Pages` → `Build and deployment` → `Source`, chọn **GitHub Actions**.
 2. Mỗi lần cập nhật: lưu trong Setting, rồi commit và push lên `main`. Workflow sẽ:
-   - chạy test; nếu 2 file thiệp lệch với `config-setting.js` thì dừng, không deploy;
-   - nếu test pass, deploy cả project lên GitHub Pages.
+   - chạy test code;
+   - chạy `node scripts/build-site.js` tạo thư mục `_site`: 2 thiệp được tạo lại theo `config-setting.js`, nên mọi lựa chọn trong Setting (tắt thiệp, chỉ hiện lễ nhà mình...) tự áp dụng, không cần sửa tay file nào;
+   - deploy `_site` lên GitHub Pages. `_site` **không có** `config-setting.js`, trang `Setting/`, `tests/`, `scripts/` và ảnh bản đồ của nhà đã tắt thiệp.
+
+   Muốn xem trước đúng bản sẽ deploy: `node scripts/build-site.js` rồi mở `_site/index.html`.
 
    Có thể chạy tay ở tab `Actions` → `Deploy Website` → `Run workflow`.
 3. Thiệp sẽ có địa chỉ:
@@ -165,12 +173,12 @@ GitHub Pages cache file khoảng 10 phút. Muốn khách thấy thay đổi ngay
 | Bấm Lưu nhưng không thấy hộp chọn thư mục | Dùng Chrome/Edge bản mới |
 | Báo "Thư mục chưa đúng" | Chọn thư mục gốc (chứa `index.html`), không chọn thư mục con |
 | Lưu xong nhưng thiệp không đổi | Reload bằng `Ctrl + F5`. Trên GitHub Pages thì đợi vài phút hoặc tăng số `?v=` |
-| Workflow Actions báo lỗi ở bước Test config | Có người sửa tay `config-groom.js` / `config-bride.js`. Mở Setting và bấm Lưu lại rồi push |
+| Workflow Actions báo lỗi ở bước Test | Lỗi code, không phải do nội dung Setting. Chạy `node tests/setting-model.test.js` để xem chi tiết |
 | Ảnh không hiện | Kiểm tra ô ảnh trong Setting có viền đỏ không. Tên file có phân biệt hoa/thường trên GitHub Pages |
 | Nhạc không phát | Trình duyệt chặn tự phát; khách bấm nút ♫. iPhone để chế độ im lặng cũng không phát |
 
 ## Ghi chú
 
-- **Trang `Setting/`** cũng được publish cùng thiệp. Nó không ghi được gì lên server; khách chỉ đọc được những thông tin vốn đã có trong thiệp.
+- **Trang `Setting/`** chỉ dùng trên máy, không được publish.
 - **RSVP** chỉ lưu trên trình duyệt của từng khách (localStorage), nên bạn không nhận được danh sách. Nếu cần tập trung, hãy dùng Google Forms, Formspree, Supabase hoặc Firebase.
 - **Số tài khoản** nhập trong phần Mừng cưới sẽ công khai trên thiệp và nằm trong lịch sử git.

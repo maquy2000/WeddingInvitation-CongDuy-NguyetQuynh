@@ -14,3 +14,6 @@ desktop.ini
 # File tạm
 *.tmp
 *.log
+
+# Bản build để deploy (scripts/build-site.js)
+_site/

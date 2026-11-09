@@ -17,21 +17,19 @@ function loadScript(file, name) {
 const model0 = () => JSON.parse(JSON.stringify(M.normalizeModel(loadScript("assets/js/config-setting.js", "WEDDING_SETTING"))));
 const model = model0();
 
-// 2 file thiệp trên đĩa phải đúng là bản được tạo từ config-setting.js (và lưu lại setting không đổi gì).
+// Mỗi lần lưu ghi 3 file. Test không bắt 2 file thiệp trên đĩa phải khớp Setting: khi deploy chúng được tạo lại (scripts/build-site.js).
 const files = M.configFiles(model);
 assert.deepStrictEqual(Object.keys(files).sort(), [
   "assets/js/config-bride.js",
   "assets/js/config-groom.js",
   "assets/js/config-setting.js"
 ]);
-for (const [file, content] of Object.entries(files)) {
-  const current = fs.readFileSync(path.join(root, file), "utf8").replace(/\r\n/g, "\n");
-  assert.strictEqual(content, current, `${file} chưa đồng bộ với config-setting.js`);
-}
 
-// Các kiểm tra dưới đây cần cả 2 thiệp bật, dù dữ liệu thật trên đĩa có đang tắt thiệp nào.
+// Các kiểm tra dưới đây cần cả 2 thiệp bật và hiện cả 2 nhà, dù dữ liệu thật trên đĩa đang chọn thế nào.
 model.families.groom.enabled = true;
 model.families.bride.enabled = true;
+model.families.groom.showOtherFamily = true;
+model.families.bride.showOtherFamily = true;
 
 // Thiệp nhà nào thì tên + thông tin nhà đó đứng trước.
 const g = M.buildConfig(model, "groom");
@@ -57,6 +55,8 @@ for (const side of M.SIDES) {
 const off = M.normalizeModel(loadScript("assets/js/config-setting.js", "WEDDING_SETTING"));
 off.families.groom.enabled = false;
 off.families.bride.enabled = true;
+off.families.groom.ceremony.title = "Lễ riêng nhà trai";
+off.families.groom.image = "assets/images/rieng-nha-trai.png";
 assert.deepStrictEqual(M.buildConfig(off, "groom"), { side: "groom", enabled: false });
 const brideOnly = M.buildConfig(off, "bride");
 assert.deepStrictEqual(brideOnly.events.map(e => e.key), ["bride"]);
@@ -68,6 +68,7 @@ const own = M.normalizeModel(loadScript("assets/js/config-setting.js", "WEDDING_
 own.families.groom.enabled = true;
 own.families.bride.enabled = true;
 own.families.groom.showOtherFamily = false;
+own.families.bride.showOtherFamily = true;
 own.families.bride.address = "Địa chỉ bí mật nhà gái";
 const groomOwn = M.buildConfig(own, "groom");
 assert.deepStrictEqual(groomOwn.events.map(e => e.key), ["groom"]);
@@ -127,5 +128,30 @@ assert.strictEqual(empty.families.bride.label, "Nhà gái");
 assert.strictEqual(empty.families.groom.enabled, true, "mặc định thiệp phải bật");
 assert.strictEqual(empty.families.groom.showOtherFamily, true, "mặc định thiệp hiện lễ cả 2 nhà");
 assert.deepStrictEqual(empty.album, []);
+
+// Bản deploy: 2 thiệp tạo lại đúng theo Setting dù file trên đĩa có lệch; không có dữ liệu gốc, trang Setting,
+// bản đồ của nhà đã tắt thiệp.
+const os = require("os");
+const { build } = require("../scripts/build-site.js");
+const site = fs.mkdtempSync(path.join(os.tmpdir(), "wedding-site-"));
+build(site);
+const real = model0();
+for (const side of M.SIDES) {
+  const built = fs.readFileSync(path.join(site, `assets/js/config-${side}.js`), "utf8");
+  assert.strictEqual(built, M.serializeConfig(M.buildConfig(real, side)), `bản deploy config-${side}.js không theo Setting`);
+}
+for (const p of ["index.html", "Groom/index.html", "Bride/index.html", "assets/js/app.js", "assets/css/style.css"]) {
+  assert.ok(fs.existsSync(path.join(site, p)), `bản deploy thiếu ${p}`);
+}
+for (const p of ["assets/js/config-setting.js", "Setting", "tests", "scripts", ".git", ".github"]) {
+  assert.ok(!fs.existsSync(path.join(site, p)), `bản deploy không được có ${p}`);
+}
+for (const side of M.SIDES) {
+  const image = real.families[side].image;
+  if (M.isProjectAsset(image) && fs.existsSync(path.join(root, image))) {
+    assert.strictEqual(fs.existsSync(path.join(site, image)), real.families[side].enabled, `ảnh bản đồ ${side} publish sai theo bật/tắt thiệp`);
+  }
+}
+fs.rmSync(site, { recursive: true, force: true });
 
 console.log("OK - setting-model");

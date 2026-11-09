@@ -90,7 +90,7 @@ const sections = [
     id: "event",
     title: "Thông tin buổi lễ",
     toggle: "ui.sections.event",
-    note: "Hiện lễ của cả 2 nhà (nhà nào tắt thiệp thì ẩn), nhà của thiệp đứng trước. Thời gian lễ sửa ở phần Thông tin nhà trai & nhà gái.",
+    note: "Hiện lễ của cả 2 nhà (nhà nào tắt thiệp, hoặc bỏ chọn \"Hiện cả thông tin lễ của nhà kia\", thì ẩn), nhà của thiệp đứng trước. Thời gian lễ sửa ở phần Thông tin nhà trai & nhà gái.",
     fields: [
       { path: "text.eventEyebrow", label: "Dòng chữ nhỏ" },
       { path: "text.eventTitle", label: "Tiêu đề" }

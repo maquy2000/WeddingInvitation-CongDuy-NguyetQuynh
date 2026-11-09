@@ -26,9 +26,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Chặn deploy nếu config-groom.js / config-bride.js không khớp config-setting.js.
-      - name: Test config
+      - name: Test
         run: node tests/setting-model.test.js
+
+      # Tạo 2 thiệp theo Setting (config-setting.js); bỏ dữ liệu gốc, trang Setting, bản đồ nhà đã tắt thiệp khỏi bản publish.
+      - name: Build website
+        run: node scripts/build-site.js _site
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -36,7 +39,7 @@ jobs:
       - name: Upload website
         uses: actions/upload-pages-artifact@v4
         with:
-          path: '.'
+          path: _site
 
       - name: Deploy Pages
         id: deployment
