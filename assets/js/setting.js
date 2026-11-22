@@ -1,5 +1,5 @@
-// Trang Setting: đọc dữ liệu gốc assets/js/config-setting.js, khi lưu ghi lại file đó và tạo lại config-groom.js, config-bride.js.
-// Ghi file trực tiếp cần File System Access API (Chrome/Edge). Trình duyệt khác sẽ tải 3 file về.
+// Trang Setting: đọc dữ liệu gốc assets/js/config-setting.js, khi lưu ghi lại đúng file đó (2 thiệp tự lấy thông tin từ file này).
+// Ghi file trực tiếp cần File System Access API (Chrome/Edge). Trình duyệt khác sẽ tải file về.
 const ROOT_URL = new URL("../../", document.currentScript.src);
 const IMAGE_DIR = "assets/images";
 const AUDIO_DIR = "assets/audio";
@@ -25,8 +25,15 @@ const familyFields = [
   { path: "address", label: "Địa chỉ", type: "textarea", wide: true },
   { path: "mapUrl", label: "Link Google Maps", wide: true },
   { path: "image", label: "Ảnh bản đồ", type: "image", wide: true },
-  { path: "imageAlt", label: "Mô tả ảnh bản đồ (alt)", wide: true }
+  { path: "imageAlt", label: "Mô tả ảnh bản đồ (alt)", wide: true },
+  { path: "bank.accountOwner", label: "Mừng cưới: chủ tài khoản", hint: "Ví dụ: NGUYEN VAN A" },
+  { path: "bank.bankName", label: "Mừng cưới: ngân hàng", hint: "Ví dụ: MB Bank" },
+  { path: "bank.accountNumber", label: "Mừng cưới: số tài khoản" },
+  { path: "bank.qr", label: "Mừng cưới: ảnh mã QR chuyển khoản", type: "image", wide: true }
 ];
+
+// Phần nào có trong SettingModel.DISPLAY_SECTIONS thì có ô "Dùng chung cho 2 thiệp"; bỏ chọn thì nhập riêng cho từng thiệp.
+const SIDE_TITLES = { groom: "Thiệp nhà trai", bride: "Thiệp nhà gái" };
 
 const sections = [
   {
@@ -44,8 +51,19 @@ const sections = [
   {
     id: "families",
     title: "Thông tin nhà trai & nhà gái",
-    note: "Tắt thiệp một nhà: link thiệp đó chỉ hiện \"Thiệp chưa sẵn sàng\", trang chọn thiệp ẩn thiệp đó, thiệp nhà còn lại ẩn mọi thông tin của nhà này (lễ, địa chỉ, bản đồ).",
+    note: "Tắt thiệp một nhà: link thiệp đó chỉ hiện \"Thiệp chưa sẵn sàng\", trang chọn thiệp ẩn thiệp đó, thiệp nhà còn lại ẩn mọi thông tin của nhà này (lễ, địa chỉ, bản đồ, tài khoản). Tài khoản mừng cưới của nhà trai là của chú rể, nhà gái là của cô dâu; chọn thiệp nào hiện tài khoản nào ở phần Mừng cưới.",
     custom: renderFamilies
+  },
+  {
+    id: "template",
+    title: "Mẫu thiệp",
+    note: "Bỏ chọn \"Dùng chung cho 2 thiệp\" để mỗi thiệp dùng một mẫu khác nhau.",
+    fields: [
+      { path: "ui.template", label: "Mẫu", type: "select", options: [
+        ["default", "Mặc định: hồng vàng"],
+        ["vintage", "Cổ điển: nâu kem, bìa phong bì, lịch tháng"]
+      ] }
+    ]
   },
   {
     id: "cover",
@@ -71,7 +89,7 @@ const sections = [
     toggle: "ui.sections.home",
     fields: [
       { path: "text.heroEyebrow", label: "Dòng giới thiệu" },
-      { path: "ui.blocks.countdown", label: "Hiện đồng hồ đếm ngược", type: "checkbox" },
+      { path: "ui.blocks.countdown", label: "Hiện đồng hồ đếm ngược (mẫu Cổ điển: cả lịch tháng)", type: "checkbox" },
       { path: "text.heroDescription", label: "Mô tả (hiện ở bìa và trang chủ)", type: "textarea", wide: true }
     ]
   },
@@ -112,16 +130,16 @@ const sections = [
     id: "gift",
     title: "Mừng cưới",
     toggle: "ui.sections.gift",
+    note: "Khách bấm vào hộp quà để mở, thấy mã QR và số tài khoản. Tài khoản và ảnh QR nhập ở phần Thông tin nhà trai & nhà gái. Muốn thiệp nhà trai chỉ có QR chú rể, thiệp nhà gái chỉ có QR cô dâu: bỏ chọn \"Dùng chung cho 2 thiệp\" rồi chọn tài khoản cho từng thiệp. Tài khoản chưa có số tài khoản lẫn ảnh QR thì không hiện; không còn tài khoản nào thì ẩn hộp quà.",
     fields: [
       { path: "text.giftEyebrow", label: "Dòng chữ nhỏ" },
       { path: "text.giftTitle", label: "Tiêu đề" },
       { path: "text.giftDescription", label: "Mô tả", type: "textarea", wide: true },
+      { path: "ui.blocks.giftImage", label: "Hiện ảnh minh họa bên cạnh hộp quà (mẫu Mặc định; tắt hoặc để trống ảnh thì hộp quà nằm giữa)", type: "checkbox", wide: true },
       { path: "images.gift", label: "Ảnh minh họa", type: "image", wide: true },
-      { path: "ui.blocks.bankInfo", label: "Hiện thông tin ngân hàng", type: "checkbox", wide: true },
-      { path: "text.bankTitle", label: "Tiêu đề khung ngân hàng" },
-      { path: "bank.bankName", label: "Ngân hàng" },
-      { path: "bank.accountOwner", label: "Chủ tài khoản" },
-      { path: "bank.accountNumber", label: "Số tài khoản" }
+      { path: "text.bankTitle", label: "Tiêu đề hộp quà khi mở", hint: "Ví dụ: Phong bao mừng cưới" },
+      { path: "ui.giftAccounts.groom", label: "Hiện tài khoản chú rể", type: "checkbox" },
+      { path: "ui.giftAccounts.bride", label: "Hiện tài khoản cô dâu", type: "checkbox" }
     ]
   },
   {
@@ -156,15 +174,34 @@ function el(tag, props = {}, children = []) {
   return node;
 }
 
-function getPath(path) {
-  return path.split(".").reduce((obj, key) => (obj == null ? undefined : obj[key]), model);
+// Nơi một ô đọc/ghi giá trị: dữ liệu chung (prefix = nhánh trong model), hoặc giá trị riêng của 1 thiệp
+// (side = "groom" / "bride", dùng cho phần đã bỏ chọn "Dùng chung cho 2 thiệp").
+function scopeFor(side, prefix = "") {
+  if (side) {
+    return {
+      get: path => model.cards[side][path],
+      set: (path, value) => {
+        model.cards[side][path] = value;
+        markDirty();
+      }
+    };
+  }
+  return {
+    get: path => SettingModel.getIn(model, prefix + path),
+    set: (path, value) => {
+      SettingModel.setIn(model, prefix + path, value);
+      markDirty();
+    }
+  };
 }
 
-function setPath(path, value) {
-  const keys = path.split(".");
-  const last = keys.pop();
-  keys.reduce((obj, key) => obj[key], model)[last] = value;
-  markDirty();
+// Phần tách riêng: trường nào thiệp chưa có giá trị riêng (mới tách lần đầu) thì bắt đầu bằng giá trị chung hiện tại.
+function ensureCardValues(sectionId) {
+  SettingModel.SIDES.forEach(side => SettingModel.DISPLAY_SECTIONS[sectionId].forEach(path => {
+    if (model.cards[side][path] === undefined) {
+      model.cards[side][path] = JSON.parse(JSON.stringify(SettingModel.getIn(model, path)));
+    }
+  }));
 }
 
 function assetUrl(path) {
@@ -251,6 +288,17 @@ async function refreshFileLists() {
 // Thư mục đã chọn được nhớ trong IndexedDB, các lần sau chỉ cần trình duyệt xác nhận quyền.
 let savedDir = null;
 
+// Mọi trang mở bằng file:// dùng chung IndexedDB, nên thư mục nhớ theo đường dẫn của từng project,
+// và chỉ nhận thư mục trùng tên project chứa trang Setting này (tránh lưu nhầm sang project khác).
+const SETTING_PATH = decodeURIComponent(location.pathname).replace(/\/[^/]*$/, "");
+const PROJECT_PATH = /\/Setting$/i.test(SETTING_PATH) ? SETTING_PATH.slice(0, -"/Setting".length) : "";
+const PROJECT_NAME = PROJECT_PATH.split("/").pop() || "";
+const FOLDER_KEY = `root:${PROJECT_PATH}`;
+
+function isThisProject(dir) {
+  return !PROJECT_NAME || dir.name === PROJECT_NAME;
+}
+
 function handleStore(mode, action) {
   return new Promise((resolve, reject) => {
     const open = indexedDB.open("wedding-setting", 1);
@@ -269,14 +317,14 @@ async function connectFolder(dir) {
   rootDir = dir;
   savedDir = dir;
   document.getElementById("pickFolder").textContent = `Thư mục: ${dir.name}`;
-  handleStore("readwrite", store => store.put(dir, "root")).catch(() => {});
+  handleStore("readwrite", store => store.put(dir, FOLDER_KEY)).catch(() => {});
   await refreshFileLists();
   setStatus(`Đã kết nối thư mục "${dir.name}". Có thể thêm ảnh và lưu trực tiếp.`, "ok");
 }
 
 async function pickFolder() {
   if (!window.showDirectoryPicker) {
-    alert("Trình duyệt này không hỗ trợ ghi file trực tiếp. Hãy dùng Chrome hoặc Edge, hoặc bấm Lưu để tải 3 file config về rồi chép vào assets/js/.");
+    alert("Trình duyệt này không hỗ trợ ghi file trực tiếp. Hãy dùng Chrome hoặc Edge, hoặc bấm Lưu để tải file config-setting.js về rồi chép vào assets/js/.");
     return false;
   }
   let dir;
@@ -289,6 +337,10 @@ async function pickFolder() {
     await (await (await dir.getDirectoryHandle("assets")).getDirectoryHandle("js")).getFileHandle("app.js");
   } catch {
     alert("Thư mục chưa đúng. Hãy chọn thư mục gốc của project (thư mục chứa index.html, Groom, Bride, Setting, assets).");
+    return false;
+  }
+  if (!isThisProject(dir)) {
+    alert(`Sai project: trang Setting này thuộc project "${PROJECT_NAME}" nhưng bạn chọn thư mục "${dir.name}".\nHãy chọn thư mục ${PROJECT_PATH.replace(/^\//, "")}`);
     return false;
   }
   await connectFolder(dir);
@@ -314,11 +366,14 @@ async function ensureFolder() {
 async function restoreFolder() {
   if (!window.showDirectoryPicker) return;
   try {
-    savedDir = await handleStore("readonly", store => store.get("root"));
+    savedDir = await handleStore("readonly", store => store.get(FOLDER_KEY));
   } catch {
     savedDir = null;
   }
-  if (!savedDir) return;
+  if (!savedDir || !isThisProject(savedDir)) {
+    savedDir = null;
+    return;
+  }
   try {
     if (await savedDir.queryPermission({ mode: "readwrite" }) === "granted") {
       await connectFolder(savedDir);
@@ -403,36 +458,40 @@ function filePicker(value, onChange, kind) {
   return el("div", { class: "picker" }, [thumb, input, upload]);
 }
 
-function fieldEl(field, prefix = "") {
-  const path = prefix + field.path;
-  const value = getPath(path);
+function fieldEl(field, scope = scopeFor()) {
+  const { path } = field;
+  const value = scope.get(path);
   const type = field.type || "text";
   const wide = field.wide ? " wide" : "";
 
   if (type === "checkbox") {
     const input = el("input", { type: "checkbox", checked: Boolean(value) });
-    input.addEventListener("change", () => setPath(path, input.checked));
+    input.addEventListener("change", () => scope.set(path, input.checked));
     return el("label", { class: `field check${wide}` }, [input, field.label]);
   }
 
   let control;
   if (type === "image" || type === "audio") {
-    control = filePicker(value, v => setPath(path, v), type);
+    control = filePicker(value, v => scope.set(path, v), type);
+  } else if (type === "select") {
+    control = el("select", {}, field.options.map(([optionValue, textContent]) => el("option", { value: optionValue, textContent })));
+    control.value = value;
+    control.addEventListener("change", () => scope.set(path, control.value));
   } else if (type === "textarea") {
     control = el("textarea", { value: value || "", rows: 2 });
-    control.addEventListener("input", () => setPath(path, control.value));
+    control.addEventListener("input", () => scope.set(path, control.value));
   } else if (type === "number") {
     control = el("input", { type: "number", min: 0, value: value || 0 });
     control.addEventListener("input", () => {
-      setPath(path, Math.max(0, parseInt(control.value, 10) || 0));
-      if (path === "ui.albumLimit") renderAlbumList();
+      scope.set(path, Math.max(0, parseInt(control.value, 10) || 0));
+      if (path === "ui.albumLimit" && scope.renderAlbumList) scope.renderAlbumList();
     });
   } else if (type === "datetime") {
     control = el("input", { type: "datetime-local", value: toLocalInput(value) });
-    control.addEventListener("input", () => setPath(path, fromLocalInput(control.value)));
+    control.addEventListener("input", () => scope.set(path, fromLocalInput(control.value)));
   } else {
     control = el("input", { type: "text", value: value || "", placeholder: field.hint || "" });
-    control.addEventListener("input", () => setPath(path, control.value));
+    control.addEventListener("input", () => scope.set(path, control.value));
   }
 
   return el("label", { class: `field${wide}` }, [el("span", { textContent: field.label }), control]);
@@ -441,16 +500,91 @@ function fieldEl(field, prefix = "") {
 function renderFamilies(container) {
   const grid = el("div", { class: "families" });
   [["groom", "Nhà trai"], ["bride", "Nhà gái"]].forEach(([key, title]) => {
-    const fields = el("div", { class: "fields" }, familyFields.map(f => fieldEl(f, `families.${key}.`)));
+    const scope = scopeFor(null, `families.${key}.`);
+    const fields = el("div", { class: "fields" }, familyFields.map(f => fieldEl(f, scope)));
     grid.append(el("div", { class: "card" }, [el("h2", { textContent: title }), fields]));
   });
   container.append(grid);
 }
 
-let albumListEl = null;
+// Album dùng chung hoặc album riêng của 1 thiệp (theo scope).
+function renderAlbum(container, scope) {
+  const listEl = el("div", { class: "album-list" });
+  const album = () => scope.get("album");
 
-function renderAlbum(container) {
-  albumListEl = el("div", { class: "album-list" });
+  function changed() {
+    markDirty();
+    renderList();
+  }
+
+  function move(index, delta) {
+    const list = album();
+    const target = index + delta;
+    if (target < 0 || target >= list.length) return;
+    [list[index], list[target]] = [list[target], list[index]];
+    changed();
+  }
+
+  function renderList() {
+    const limit = scope.get("ui.albumLimit");
+
+    const rows = album().map((item, index) => {
+      const alt = el("input", { type: "text", value: item.alt, placeholder: "Mô tả ảnh" });
+      alt.addEventListener("input", () => {
+        item.alt = alt.value;
+        markDirty();
+      });
+
+      const orientation = el("select", { title: "Hướng ảnh" }, [
+        ["", "Tự động"],
+        ["portrait", "Dọc"],
+        ["landscape", "Ngang"],
+        ["square", "Vuông"]
+      ].map(([value, textContent]) => el("option", { value, textContent })));
+      orientation.value = item.orientation;
+      orientation.addEventListener("change", () => {
+        item.orientation = orientation.value;
+        markDirty();
+      });
+
+      const button = (label, title, onClick, cls = "") => {
+        const b = el("button", { type: "button", textContent: label, title, class: cls });
+        b.addEventListener("click", onClick);
+        return b;
+      };
+
+      const actions = el("div", { class: "actions" }, [
+        button("↑", "Lên", () => move(index, -1)),
+        button("↓", "Xuống", () => move(index, 1)),
+        button("✕", "Xóa khỏi album (không xóa file)", () => {
+          album().splice(index, 1);
+          changed();
+        }, "danger")
+      ]);
+
+      const hidden = limit > 0 && index >= limit;
+      return el("div", { class: `album-row${hidden ? " hidden-by-limit" : ""}`, title: hidden ? "Vượt số ảnh hiển thị, sẽ không hiện" : "" }, [
+        el("span", { class: "index", textContent: index + 1 }),
+        filePicker(item.src, value => {
+          item.src = value;
+          markDirty();
+          // Đổi ảnh thì nhận diện lại hướng (bỏ qua nếu ảnh đã đổi tiếp trong lúc chờ tải).
+          detectOrientation(value).then(found => {
+            if (!found || item.src !== value) return;
+            item.orientation = found;
+            orientation.value = found;
+          });
+        }, "image"),
+        alt,
+        orientation,
+        actions
+      ]);
+    });
+
+    if (!rows.length) rows.push(el("p", { class: "note", textContent: "Album chưa có ảnh." }));
+    listEl.replaceChildren(...rows);
+  }
+  scope.renderAlbumList = renderList;
 
   const addFiles = el("button", { type: "button", textContent: "Thêm ảnh từ máy…" });
   addFiles.addEventListener("click", async () => {
@@ -458,93 +592,57 @@ function renderAlbum(container) {
     for (const file of files) {
       const path = await uploadFile(file, `${IMAGE_DIR}/album`);
       if (!path) return;
-      model.album.push({ src: path, alt: `Ảnh album ${model.album.length + 1}`, orientation: await detectOrientation(path) });
+      album().push({ src: path, alt: `Ảnh album ${album().length + 1}`, orientation: await detectOrientation(path) });
     }
-    if (files.length) {
-      markDirty();
-      renderAlbumList();
-    }
+    if (files.length) changed();
   });
 
   const addRow = el("button", { type: "button", textContent: "Thêm dòng (chọn ảnh có sẵn)" });
   addRow.addEventListener("click", () => {
-    model.album.push({ src: "", alt: `Ảnh album ${model.album.length + 1}`, orientation: "" });
-    markDirty();
-    renderAlbumList();
+    album().push({ src: "", alt: `Ảnh album ${album().length + 1}`, orientation: "" });
+    changed();
   });
 
-  container.append(albumListEl, el("div", { class: "row" }, [addFiles, addRow]));
-  renderAlbumList();
+  container.append(listEl, el("div", { class: "row" }, [addFiles, addRow]));
+  renderList();
 }
 
-function moveAlbum(index, delta) {
-  const target = index + delta;
-  if (target < 0 || target >= model.album.length) return;
-  [model.album[index], model.album[target]] = [model.album[target], model.album[index]];
-  markDirty();
-  renderAlbumList();
+// Ô "Hiển thị phần này" (đặt trong heading), các ô nhập và phần tùy biến (album...) của 1 phần, đọc/ghi qua scope.
+function fillSection(section, card, heading, scope, container = card) {
+  if (section.toggle) {
+    const toggle = el("input", { type: "checkbox", checked: Boolean(scope.get(section.toggle)) });
+    const sync = () => card.classList.toggle("off", !toggle.checked);
+    toggle.addEventListener("change", () => {
+      scope.set(section.toggle, toggle.checked);
+      sync();
+    });
+    heading.append(el("label", { class: "section-toggle" }, [toggle, " Hiển thị phần này"]));
+    sync();
+  }
+  if (section.fields) container.append(el("div", { class: "fields" }, section.fields.map(f => fieldEl(f, scope))));
+  if (section.custom) section.custom(container, scope);
 }
 
-function renderAlbumList() {
-  if (!albumListEl) return;
-  const limit = model.ui.albumLimit;
+// Phần dùng chung: các ô nằm ngay trong thẻ của phần.
+// Phần tách riêng: mỗi thiệp một cột, mỗi cột có giá trị và ô "Hiển thị phần này" riêng.
+function renderSection(section, card, heading, body) {
+  heading.querySelector(".section-toggle")?.remove();
+  card.classList.remove("off");
+  body.replaceChildren();
 
-  const rows = model.album.map((item, index) => {
-    const alt = el("input", { type: "text", value: item.alt, placeholder: "Mô tả ảnh" });
-    alt.addEventListener("input", () => {
-      item.alt = alt.value;
-      markDirty();
-    });
-
-    const orientation = el("select", { title: "Hướng ảnh" }, [
-      ["", "Tự động"],
-      ["portrait", "Dọc"],
-      ["landscape", "Ngang"],
-      ["square", "Vuông"]
-    ].map(([value, textContent]) => el("option", { value, textContent })));
-    orientation.value = item.orientation;
-    orientation.addEventListener("change", () => {
-      item.orientation = orientation.value;
-      markDirty();
-    });
-
-    const button = (label, title, onClick, cls = "") => {
-      const b = el("button", { type: "button", textContent: label, title, class: cls });
-      b.addEventListener("click", onClick);
-      return b;
-    };
-
-    const actions = el("div", { class: "actions" }, [
-      button("↑", "Lên", () => moveAlbum(index, -1)),
-      button("↓", "Xuống", () => moveAlbum(index, 1)),
-      button("✕", "Xóa khỏi album (không xóa file)", () => {
-        model.album.splice(index, 1);
-        markDirty();
-        renderAlbumList();
-      }, "danger")
-    ]);
-
-    const hidden = limit > 0 && index >= limit;
-    return el("div", { class: `album-row${hidden ? " hidden-by-limit" : ""}`, title: hidden ? "Vượt số ảnh hiển thị, sẽ không hiện" : "" }, [
-      el("span", { class: "index", textContent: index + 1 }),
-      filePicker(item.src, value => {
-        item.src = value;
-        markDirty();
-        // Đổi ảnh thì nhận diện lại hướng (bỏ qua nếu ảnh đã đổi tiếp trong lúc chờ tải).
-        detectOrientation(value).then(found => {
-          if (!found || item.src !== value) return;
-          item.orientation = found;
-          orientation.value = found;
-        });
-      }, "image"),
-      alt,
-      orientation,
-      actions
-    ]);
+  if (!model.split[section.id]) {
+    fillSection(section, card, heading, scopeFor(), body);
+    return;
+  }
+  ensureCardValues(section.id);
+  const grid = el("div", { class: "families" });
+  SettingModel.SIDES.forEach(side => {
+    const columnHeading = el("h2", { textContent: SIDE_TITLES[side] });
+    const column = el("div", { class: "card" }, [columnHeading]);
+    fillSection(section, column, columnHeading, scopeFor(side));
+    grid.append(column);
   });
-
-  if (!rows.length) rows.push(el("p", { class: "note", textContent: "Album chưa có ảnh." }));
-  albumListEl.replaceChildren(...rows);
+  body.append(grid);
 }
 
 function renderForm() {
@@ -552,27 +650,26 @@ function renderForm() {
   const toc = document.getElementById("toc");
   form.replaceChildren();
   toc.replaceChildren();
-  albumListEl = null;
 
   sections.forEach(section => {
     const card = el("section", { class: "card", id: `s-${section.id}` });
     const heading = el("h2", { textContent: section.title });
+    const body = el("div");
 
-    if (section.toggle) {
-      const toggle = el("input", { type: "checkbox", checked: Boolean(getPath(section.toggle)) });
-      const sync = () => card.classList.toggle("off", !toggle.checked);
-      toggle.addEventListener("change", () => {
-        setPath(section.toggle, toggle.checked);
-        sync();
+    if (section.id in SettingModel.DISPLAY_SECTIONS) {
+      const shared = el("input", { type: "checkbox", checked: !model.split[section.id] });
+      shared.addEventListener("change", () => {
+        model.split[section.id] = !shared.checked;
+        markDirty();
+        renderSection(section, card, heading, body);
       });
-      heading.append(el("label", {}, [toggle, " Hiển thị phần này"]));
-      sync();
+      heading.append(el("label", { title: "Bỏ chọn để nhập riêng cho thiệp nhà trai và thiệp nhà gái" }, [shared, " Dùng chung cho 2 thiệp"]));
     }
 
     card.append(heading);
     if (section.note) card.append(el("p", { class: "note", textContent: section.note }));
-    if (section.fields) card.append(el("div", { class: "fields" }, section.fields.map(f => fieldEl(f))));
-    if (section.custom) section.custom(card);
+    card.append(body);
+    renderSection(section, card, heading, body);
 
     form.append(card);
     toc.append(el("a", { href: `#s-${section.id}`, textContent: section.title }));
@@ -719,7 +816,7 @@ async function save() {
   try {
     if (!window.showDirectoryPicker) {
       Object.entries(files).forEach(([path, content]) => download(path.split("/").pop(), content));
-      setStatus("Đã tải 3 file config về. Hãy chép đè vào thư mục assets/js/ của project.", "ok");
+      setStatus("Đã tải file config-setting.js về. Hãy chép đè vào thư mục assets/js/ của project.", "ok");
       dirty = false;
       return;
     }
@@ -731,16 +828,18 @@ async function save() {
     }
 
     const list = Object.keys(files).map(path => `• ${rootDir.name}/${path}`).join("\n");
-    if (!confirm(`Lưu trực tiếp vào thư mục project?\n\n${list}\n\nThiệp nhà trai và nhà gái sẽ được tạo lại theo Setting (ghi đè nội dung cũ).`)) {
+    if (!confirm(`Lưu trực tiếp vào thư mục project?\n\n${list}\n\nCả thiệp nhà trai và nhà gái đều lấy thông tin từ file này nên cùng được cập nhật.`)) {
       setStatus("Đã hủy lưu.");
       return;
     }
 
+    setStatus("Đang lưu...");
     for (const [path, content] of Object.entries(files)) await writeFile(path, content);
-    setStatus(`Đã lưu vào ${rootDir.name}/assets/js/ (${new Date().toLocaleTimeString()}).`, "ok");
+    setStatus(`Đã lưu vào ${rootDir.name}/assets/js/config-setting.js (${new Date().toLocaleTimeString()}). Cả 2 thiệp đã cập nhật, mở lại thiệp để xem.`, "ok");
     dirty = false;
   } catch (error) {
     setStatus(`Lưu thất bại: ${error.message}`, "error");
+    alert(`Lưu thất bại, 2 thiệp chưa thay đổi.\n\n${error.message}`);
   }
 }
 

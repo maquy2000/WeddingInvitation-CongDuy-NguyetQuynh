@@ -374,13 +374,214 @@ button { cursor: pointer; }
   transform: scale(1.06);
 }
 
-.bank-box {
-  padding: 20px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.58);
-  border: 1px solid var(--border);
+/* ===== Hộp quà mừng cưới: bấm vào nắp bật lên, mở hộp thoại QR. Màu đổi theo mẫu qua các biến --gift-* ===== */
+/* Không có ảnh minh họa (tắt trong Setting hoặc để trống): hộp quà nằm giữa, 1 cột. */
+#gift.no-photo { grid-template-columns: 1fr; }
+#gift.no-photo .gift-card { width: 100%; max-width: 760px; margin: 0 auto; text-align: center; }
+.gift-card .gift-ornament {
+  margin: 14px 0 0;
+  font-size: 13px;
+  letter-spacing: 0.5em;
+  color: var(--gold);
 }
-.small-message { min-height: 20px; color: var(--rose); font-weight: 800; }
+.gift-box {
+  --gift-box: #efc3c8;
+  --gift-lid: #e3a9b1;
+  --gift-ribbon: #c99a55;
+  --gift-knot: #a87a3c;
+  --gift-spark: var(--gold);
+  --gift-dot: #fff;
+  --gift-tag: #fffaf3;
+  --gift-heart: #e48a9a;
+  --gift-glow: #ffe1c8;
+  position: relative;
+  display: block;
+  width: min(340px, 100%);
+  margin: 6px auto 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+}
+.gift-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.gift-svg * { transform-box: fill-box; transform-origin: center; }
+
+/* Hộp chính */
+.gb-box { fill: var(--gift-box); }
+.gb-lid { fill: var(--gift-lid); }
+.gb-ribbon { fill: var(--gift-ribbon); }
+.gb-knot { fill: var(--gift-knot); }
+.gb-shade { fill: #000; opacity: 0.1; }
+.gb-shine { fill: #fff; opacity: 0.25; }
+.gb-dots { fill: var(--gift-dot); opacity: 0.5; }
+.gb-string { fill: none; stroke: var(--gift-knot); stroke-width: 1.5; }
+.gb-tag { fill: var(--gift-tag); stroke: var(--gift-knot); stroke-width: 1.2; }
+.gift-main { transform-origin: 50% 100%; animation: giftBob 3s ease-in-out infinite; }
+.gift-box:hover .gift-main,
+.gift-box:focus-visible .gift-main {
+  animation: giftPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.gift-lid {
+  transform-origin: 50% 100%;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.gift-box.is-open .gift-lid { transform: translate(-8px, -46px) rotate(-16deg); }
+
+/* Trang trí: quầng sáng, vòng chấm xoay, bóng sàn, hộp nhỏ, tim bay, sao lấp lánh */
+.gift-ring {
+  fill: none;
+  stroke: var(--gift-spark);
+  stroke-opacity: 0.4;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 0.1 9;
+  animation: giftSpin 60s linear infinite;
+}
+.gift-floor { animation: giftShadow 3s ease-in-out infinite; }
+.gift-mini { animation: giftMiniFloat 4.5s ease-in-out infinite; animation-delay: calc(var(--d) * -1); }
+.gift-box:hover .gift-mini,
+.gift-box:focus-visible .gift-mini,
+.gift-box.is-open .gift-mini {
+  animation: giftMiniHop 0.9s ease-in-out infinite;
+  animation-delay: calc(var(--d) / 6);
+}
+.gift-float {
+  fill: var(--gift-heart);
+  opacity: 0;
+  animation: giftFloat 3.8s ease-out infinite;
+  animation-delay: var(--d);
+}
+.gift-star {
+  fill: var(--gift-spark);
+  animation: giftSparkle 2.4s ease-in-out infinite;
+  animation-delay: var(--d);
+}
+.gift-hint {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  animation: giftHint 2s ease-in-out infinite;
+}
+.gift-burst { position: absolute; top: 40%; left: 50%; z-index: 2; }
+.gift-burst i {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--gift-ribbon);
+  opacity: 0;
+}
+.gift-burst i:nth-child(odd) { border-radius: 50%; background: var(--gift-heart); }
+.gift-box.is-open .gift-burst i { animation: giftBurst 0.8s ease-out forwards; }
+
+@keyframes giftBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes giftPop {
+  0% { transform: translateY(0) scale(1) rotate(0); }
+  45% { transform: translateY(-14px) scale(1.08) rotate(-3deg); }
+  100% { transform: translateY(-8px) scale(1.05) rotate(0); }
+}
+@keyframes giftShadow { 0%, 100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(0.9); opacity: 0.7; } }
+@keyframes giftSpin { to { transform: rotate(360deg); } }
+@keyframes giftMiniFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes giftMiniHop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } }
+@keyframes giftFloat {
+  0% { opacity: 0; transform: translateY(0) scale(0.5); }
+  20% { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(-70px) scale(1.1); }
+}
+@keyframes giftSparkle { 0%, 100% { opacity: 0.15; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.15); } }
+@keyframes giftHint { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+@keyframes giftBurst {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(260deg); }
+}
+
+.gift-dialog {
+  width: min(420px, calc(100% - 24px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #f8f6f3;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+.gift-dialog[open] { display: flex; flex-direction: column; animation: giftDialogIn 0.35s ease; }
+.gift-dialog::backdrop { background: rgba(40, 23, 18, 0.6); backdrop-filter: blur(2px); }
+.gift-dialog-head {
+  position: relative;
+  padding: 16px 52px;
+  text-align: center;
+  color: #fff;
+  background: linear-gradient(135deg, var(--gold), var(--rose));
+}
+.gift-dialog-head h4 {
+  margin: 0;
+  font-family: "Playfair Display", serif;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.gift-close {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 16px;
+}
+.gift-accounts { display: grid; gap: 14px; padding: 18px; overflow-y: auto; }
+.gift-account {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 18px 16px;
+  text-align: center;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
+}
+.gift-account p { margin: 0; }
+.gift-account p:empty { display: none; }
+.gift-role { margin-bottom: 8px !important; font-family: "Playfair Display", serif; font-weight: 700; color: var(--text); }
+.gift-qr {
+  width: min(280px, 100%);
+  aspect-ratio: 1;
+  margin-bottom: 8px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
+}
+.gift-bank { color: var(--muted); font-size: 14px; }
+.gift-number { font: 700 18px/1.4 ui-monospace, Consolas, monospace; letter-spacing: 0.04em; color: var(--text); }
+.gift-owner { font-size: 14px; font-weight: 700; text-transform: uppercase; color: var(--text); }
+.gift-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
+.gift-action {
+  border: 0;
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.06);
+}
+.gift-action:hover { background: rgba(0, 0, 0, 0.1); }
+@keyframes giftDialogIn { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .gift-main, .gift-ring, .gift-floor, .gift-mini, .gift-float, .gift-star, .gift-hint, .gift-dialog[open] { animation: none !important; }
+}
+
+/* Lịch tháng: chỉ mẫu vintage vẽ (app.js), mẫu khác để trống. */
+.calendar:empty { display: none; }
 
 .rsvp-layout {
   display: grid;
@@ -465,7 +666,6 @@ dialog::backdrop { background: rgba(40, 23, 18, 0.8); }
 }
 
 .timeline strong { display:block; margin-bottom:4px; font-size:16px; color: var(--text); }
-.bank-box h4 { margin: 0 0 14px; font-family: "Playfair Display", serif; font-size: 26px; }
 
 
 

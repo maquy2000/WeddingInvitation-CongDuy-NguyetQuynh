@@ -8,8 +8,12 @@ config.ui.sections = config.ui.sections || {};
 config.ui.blocks = config.ui.blocks || {};
 config.events = Array.isArray(config.events) ? config.events : [];
 config.album = Array.isArray(config.album) ? config.album : [];
-config.bank = config.bank || {};
+config.gifts = Array.isArray(config.gifts) ? config.gifts : [];
 config.music = config.music || {};
+
+// Mẫu thiệp: style.css là mẫu mặc định, mẫu khác viết đè trong template-<tên>.css theo thuộc tính này.
+const template = config.ui.template || "default";
+document.documentElement.dataset.template = template;
 
 // Đường dẫn trong config tính từ thư mục gốc project (nơi chứa index.html), app.js nằm ở assets/js/.
 const ROOT_URL = new URL("../../", document.currentScript.src);
@@ -27,6 +31,7 @@ const musicToggle = document.getElementById("musicToggle");
 const autoScrollToggle = document.getElementById("autoScrollToggle");
 const lightbox = document.getElementById("lightbox");
 const lightboxImage = document.getElementById("lightboxImage");
+const giftDialog = document.getElementById("giftDialog");
 
 let autoScrollTimer = null;
 let isAutoScrolling = false;
@@ -120,7 +125,12 @@ function applyVisibilityConfig() {
   setHidden("rsvp", sections.rsvp === false);
   setHidden("thanks", sections.thanks === false);
   setHidden("countdown", blocks.countdown === false);
-  setHidden("bankBox", blocks.bankInfo === false);
+  setHidden("calendar", blocks.countdown === false);
+  setHidden("giftBox", config.gifts.length === 0);
+  // Ảnh minh họa cạnh hộp quà: tắt trong Setting hoặc chưa có ảnh thì ẩn, hộp quà nằm giữa.
+  const showGiftImage = blocks.giftImage !== false && Boolean(config.images.gift);
+  setHidden("giftPhoto", !showGiftImage);
+  $("gift")?.classList.toggle("no-photo", !showGiftImage);
   setHidden("musicToggle", !musicEnabled);
 }
 
@@ -154,10 +164,7 @@ function renderConfig() {
   text("giftEyebrow", config.text.giftEyebrow);
   text("giftTitle", config.text.giftTitle);
   text("giftDescription", config.text.giftDescription);
-  text("bankTitle", config.text.bankTitle);
-  text("bankName", config.bank.bankName);
-  text("bankOwner", config.bank.accountOwner);
-  text("bankAccount", config.bank.accountNumber);
+  text("bankTitle", config.text.bankTitle || "Phong bao mừng cưới");
   text("thanksTitle", config.text.thanksTitle);
   text("thanksMessage", config.text.thanksMessage);
 
@@ -172,6 +179,67 @@ function renderConfig() {
   renderInviteSummary();
   renderEvents();
   renderAlbum();
+  renderGifts();
+}
+
+// Mỗi tài khoản trong hộp quà: mã QR (nếu có), ngân hàng, số tài khoản, chủ tài khoản.
+function renderGifts() {
+  const list = $("giftAccounts");
+  if (!list) return;
+
+  list.innerHTML = config.gifts.map(gift => `
+    <article class="gift-account">
+      <p class="gift-role">${escapeHtml(gift.role)}${gift.name ? ` · ${escapeHtml(gift.name)}` : ""}</p>
+      ${gift.qr ? `<img class="gift-qr" src="${escapeHtml(asset(gift.qr))}" alt="Mã QR chuyển khoản ${escapeHtml(gift.role)}" />` : ""}
+      <p class="gift-bank">${escapeHtml(gift.bankName)}</p>
+      <p class="gift-number">${escapeHtml(gift.accountNumber)}</p>
+      <p class="gift-owner">${escapeHtml(gift.accountOwner)}</p>
+      <div class="gift-actions">
+        ${gift.accountNumber ? `<button class="gift-action gift-copy" type="button" data-copy="${escapeHtml(gift.accountNumber)}">Sao chép STK</button>` : ""}
+        ${gift.qr ? `<a class="gift-action" href="${escapeHtml(asset(gift.qr))}" download>Lưu QR</a>` : ""}
+      </div>
+    </article>
+  `).join("");
+}
+
+// Mẫu "vintage": hoa rơi trên bìa phong bì.
+function renderPetals() {
+  const overlay = cover?.querySelector(".cover-overlay");
+  if (!overlay) return;
+
+  const layer = document.createElement("div");
+  layer.className = "petals";
+  layer.setAttribute("aria-hidden", "true");
+  for (let i = 0; i < 14; i++) {
+    const petal = document.createElement("span");
+    petal.style.left = `${Math.random() * 100}%`;
+    petal.style.animationDuration = `${16 + Math.random() * 10}s`;
+    petal.style.animationDelay = `${-Math.random() * 20}s`;
+    petal.style.setProperty("--sway", `${Math.round(Math.random() * 60 - 30)}px`);
+    petal.style.setProperty("--size", `${10 + Math.round(Math.random() * 10)}px`);
+    layer.append(petal);
+  }
+  overlay.after(layer);
+}
+
+// Mẫu "vintage": lịch tháng cưới, ngày cưới đánh dấu trái tim. Lấy ngày theo chuỗi (giờ VN) để không lệch múi giờ.
+function renderCalendar() {
+  const box = $("calendar");
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(config.dates.weddingDate || "");
+  if (!box || !match) return;
+
+  const [year, month, day] = match.slice(1).map(Number);
+  const offset = (new Date(year, month - 1, 1).getDay() + 6) % 7; // Tuần bắt đầu từ thứ 2.
+  const total = new Date(year, month, 0).getDate();
+  const cells = [...Array(offset).fill(0), ...Array.from({ length: total }, (_, i) => i + 1)];
+
+  box.innerHTML = `
+    <p class="calendar-title">Tháng ${month} / ${year}</p>
+    <div class="calendar-grid">
+      ${["T2", "T3", "T4", "T5", "T6", "T7", "CN"].map(name => `<b>${name}</b>`).join("")}
+      ${cells.map(date => `<span${date === day ? ' class="is-wedding"' : ""}>${date || ""}</span>`).join("")}
+    </div>
+  `;
 }
 
 function renderInviteSummary() {
@@ -423,9 +491,22 @@ function renderRsvps() {
   `).join("");
 }
 
+// Mẫu có hiệu ứng mở bìa (animation CSS trên #cover) thì chờ chạy xong mới gỡ bìa.
+function closeCover() {
+  if (!cover) return;
+  cover.classList.add("is-opening");
+  if (getComputedStyle(cover).animationName === "none") {
+    cover.remove();
+    return;
+  }
+  cover.addEventListener("animationend", event => {
+    if (event.target === cover) cover.remove();
+  });
+}
+
 on("openInvite", "click", () => {
-  if (cover) cover.remove();
   if (mainContent) mainContent.classList.remove("hidden");
+  closeCover();
   window.scrollTo({ top: 0, behavior: "smooth" });
   layoutAlbum();
   playMusic();
@@ -467,17 +548,39 @@ on("closeLightbox", "click", () => {
   if (lightbox) lightbox.close();
 });
 
-on("copyBank", "click", async () => {
-  const message = $("copyMessage");
-  const account = $("bankAccount")?.textContent.trim();
-  if (!message || !account) return;
+// Bấm hộp quà: nắp bật lên (CSS .is-open) rồi mở hộp thoại QR.
+on("giftBox", "click", () => {
+  const box = $("giftBox");
+  if (!giftDialog || box.classList.contains("is-open")) return;
+
+  stopAutoScroll();
+  box.classList.add("is-open");
+  setTimeout(() => {
+    giftDialog.showModal();
+    box.classList.remove("is-open");
+  }, 700);
+});
+
+on("closeGift", "click", () => giftDialog?.close());
+
+// Bấm ra ngoài hộp thoại (vùng nền tối) cũng đóng.
+on("giftDialog", "click", event => {
+  if (event.target === giftDialog) giftDialog.close();
+});
+
+on("giftAccounts", "click", async event => {
+  const button = event.target.closest(".gift-copy");
+  if (!button) return;
 
   try {
-    await navigator.clipboard.writeText(account);
-    message.textContent = "Đã copy số tài khoản.";
+    await navigator.clipboard.writeText(button.dataset.copy);
+    button.textContent = "Đã sao chép";
   } catch {
-    message.textContent = `Không copy được. Bạn vui lòng copy thủ công: ${account}`;
+    button.textContent = "Không sao chép được, bạn chép tay giúp nhé";
   }
+  setTimeout(() => {
+    button.textContent = "Sao chép STK";
+  }, 2500);
 });
 
 if (rsvpForm) {
@@ -526,6 +629,10 @@ if (config.enabled === false) {
   renderUnavailable();
 } else {
   renderConfig();
+  if (template === "vintage") {
+    renderPetals();
+    renderCalendar();
+  }
   updateCountdown();
   setInterval(updateCountdown, 1000);
   renderRsvps();

@@ -182,12 +182,14 @@
   </main>
 
   <!-- Cả 2 file config đều gán window.WEDDING_CONFIG, nên đọc cờ enabled ngay sau mỗi file. -->
-  <script src="assets/js/config-groom.js?v=20261101"></script>
+  <script src="assets/js/config-setting.js?v=20261109"></script>
+  <script src="assets/js/setting-model.js?v=20261109"></script>
+  <script src="assets/js/config-groom.js?v=20261109"></script>
   <script>
     window.CARD_ENABLED = { groom: window.WEDDING_CONFIG.enabled !== false };
     window.CARD_IMAGES = window.WEDDING_CONFIG.images;
   </script>
-  <script src="assets/js/config-bride.js?v=20261101"></script>
+  <script src="assets/js/config-bride.js?v=20261109"></script>
   <script>
     // Thiệp nào tắt trong Setting thì ẩn. Chỉ còn 1 thiệp thì chuyển thẳng tới thiệp đó.
     CARD_ENABLED.bride = WEDDING_CONFIG.enabled !== false;

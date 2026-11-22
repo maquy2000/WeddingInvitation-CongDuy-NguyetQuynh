@@ -34,6 +34,7 @@ window.WEDDING_SETTING = {
     "wave": "assets/images/wave2.png"
   },
   "ui": {
+    "template": "default",
     "autoScroll": true,
     "albumLimit": 0,
     "sections": {
@@ -48,7 +49,11 @@ window.WEDDING_SETTING = {
     },
     "blocks": {
       "countdown": true,
-      "bankInfo": true
+      "giftImage": false
+    },
+    "giftAccounts": {
+      "groom": true,
+      "bride": true
     }
   },
   "album": [
@@ -83,11 +88,6 @@ window.WEDDING_SETTING = {
       "orientation": "portrait"
     }
   ],
-  "bank": {
-    "bankName": "VIETTINBANK",
-    "accountOwner": "Trinh Manh Quyet",
-    "accountNumber": "107868960902"
-  },
   "families": {
     "groom": {
       "enabled": true,
@@ -110,7 +110,13 @@ window.WEDDING_SETTING = {
       "address": "Tổ dân phố Hùng Thắng, Phường Trần Lãm, Tỉnh Hưng Yên",
       "mapUrl": "https://www.google.com/maps/place/M%C5%A9+C%E1%BB%91i+%C4%90%C3%B4ng+L%C3%A0o/@20.4240876,106.3382002,937m/data=!3m2!1e3!4b1!4m6!3m5!1s0x3135e5002a68c54b:0x153ea992a68c7603!8m2!3d20.4240876!4d106.3382002!16s%2Fg%2F11wwsc0szl?entry=ttu&g_ep=EgoyMDI2MTAyNy4wIKXMDSoASAFQAw%3D%3D",
       "image": "assets/images/groom.png",
-      "imageAlt": "Bản đồ nhà trai"
+      "imageAlt": "Bản đồ nhà trai",
+      "bank": {
+        "bankName": "MB Bank",
+        "accountOwner": "NGUYEN CONG DUY",
+        "accountNumber": "8300136837004",
+        "qr": "assets/images/qr-chu-re.jpg"
+      }
     },
     "bride": {
       "enabled": true,
@@ -133,7 +139,49 @@ window.WEDDING_SETTING = {
       "address": "Số 192 Ngô Gia Tự, Phường Phú Yên, Tỉnh Đắk Lắk",
       "mapUrl": "https://www.google.com/maps/place/192+Ng%C3%B4+Gia+T%E1%BB%B1,+Ph%C3%BA+Y%C3%AAn,+%C4%90%E1%BA%AFk+L%E1%BA%AFk,+Vi%E1%BB%87t+Nam/@13.0637299,109.325023,974m/data=!3m2!1e3!4b1!4m6!3m5!1s0x316fee86d8c124d3:0x2465adcc2f50c75a!8m2!3d13.0637299!4d109.3275979!16s%2Fg%2F11f57qgzn2?entry=ttu&g_ep=EgoyMDI2MTAyNy4wIKXMDSoASAFQAw%3D%3D",
       "image": "assets/images/bride.png",
-      "imageAlt": "Bản đồ nhà gái"
+      "imageAlt": "Bản đồ nhà gái",
+      "bank": {
+        "bankName": "",
+        "accountOwner": "",
+        "accountNumber": "",
+        "qr": ""
+      }
+    }
+  },
+  "split": {
+    "template": false,
+    "cover": false,
+    "backgrounds": false,
+    "home": false,
+    "story": false,
+    "event": false,
+    "album": false,
+    "gift": true,
+    "rsvp": false,
+    "thanks": false
+  },
+  "cards": {
+    "groom": {
+      "ui.sections.gift": true,
+      "text.giftEyebrow": "Wedding Gift",
+      "text.giftTitle": "Gửi lời chúc",
+      "text.giftDescription": "Sự hiện diện và lời chúc của bạn là món quà quý giá nhất đối với chúng tôi.",
+      "images.gift": "assets/images/d3.svg",
+      "text.bankTitle": "Thông tin mừng cưới",
+      "ui.giftAccounts.groom": true,
+      "ui.giftAccounts.bride": false,
+      "ui.blocks.giftImage": false
+    },
+    "bride": {
+      "ui.sections.gift": false,
+      "text.giftEyebrow": "Wedding Gift",
+      "text.giftTitle": "Gửi lời chúc",
+      "text.giftDescription": "Sự hiện diện và lời chúc của bạn là món quà quý giá nhất đối với chúng tôi.",
+      "images.gift": "assets/images/d3.svg",
+      "text.bankTitle": "Thông tin mừng cưới",
+      "ui.giftAccounts.groom": false,
+      "ui.giftAccounts.bride": true,
+      "ui.blocks.giftImage": false
     }
   }
 };

@@ -1,0 +1,549 @@
+/* Mẫu thiệp "vintage": nâu kem cổ điển, bìa phong bì có dấu sáp, hoa rơi, lịch tháng.
+   Chỉ áp dụng khi app.js đặt <html data-template="vintage"> (chọn mẫu trong trang Setting).
+   Mỗi quy tắc viết đè quy tắc cùng tên trong style.css (thêm [data-template] nên luôn thắng). */
+/* Chỉ dùng font có bộ chữ tiếng Việt (Viaoda Libre, Lora, Ms Madi, Playfair Display), để dấu không bị vỡ. */
+@import url("https://fonts.googleapis.com/css2?family=Viaoda+Libre&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Ms+Madi&display=swap");
+
+[data-template="vintage"] {
+  --v-paper: #f7f5ee;
+  --v-brown: #593d2c;
+  --v-brown-dark: #37261b;
+  --v-cream: #ece4d8;
+  --v-cream-soft: rgba(236, 228, 216, 0.72);
+  --v-gold: #c9a24a;
+  --v-muted: rgba(89, 61, 44, 0.72);
+  --v-line: rgba(89, 61, 44, 0.22);
+  --v-script: "Viaoda Libre", "Playfair Display", serif;
+  --v-serif: "Lora", "Times New Roman", serif;
+  --v-card-shadow: 4px 4px 2px rgba(0, 0, 0, 0.22);
+}
+
+[data-template="vintage"] body {
+  font-family: var(--v-serif);
+  font-size: 15px;
+  color: var(--v-brown);
+  background:
+    linear-gradient(rgba(55, 38, 27, 0.86), rgba(55, 38, 27, 0.92)),
+    var(--bg-image, none) center / cover fixed no-repeat,
+    var(--v-brown-dark);
+}
+
+/* ---------- Bìa phong bì ---------- */
+[data-template="vintage"] .cover-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  min-height: 100%;
+  background: linear-gradient(to bottom right, #7d553e, #593d2c, #37261b);
+}
+[data-template="vintage"] .cover-image {
+  opacity: 0.14;
+  filter: grayscale(0.4);
+}
+[data-template="vintage"] .cover-overlay {
+  background: radial-gradient(circle at 50% 42%, transparent 0, rgba(30, 18, 12, 0.5) 100%);
+}
+[data-template="vintage"] .cover-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(400px, calc(100% - 40px));
+  padding: 64px 26px 36px;
+  color: var(--v-brown);
+  border: 1px solid rgba(89, 61, 44, 0.15);
+  border-radius: 8px;
+  /* Nét gấp chữ V của nắp phong bì. */
+  background:
+    linear-gradient(to bottom right, transparent 49.6%, rgba(89, 61, 44, 0.16) 50%, transparent 50.4%) left top / 50% 92px no-repeat,
+    linear-gradient(to bottom left, transparent 49.6%, rgba(89, 61, 44, 0.16) 50%, transparent 50.4%) right top / 50% 92px no-repeat,
+    rgba(247, 245, 238, 0.97);
+  backdrop-filter: none;
+  box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(0, 0, 0, 0.2), 0 0 40px rgba(89, 61, 44, 0.15);
+}
+/* Dấu sáp niêm phong. */
+[data-template="vintage"] .cover-content::before {
+  content: "\2665";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--v-cream);
+  font-size: 22px;
+  background: radial-gradient(circle at 30% 30%, #7a5440, #3b1f0e);
+  box-shadow: 0 4px 20px rgba(89, 61, 44, 0.5), inset 0 0 0 4px rgba(236, 228, 216, 0.14);
+  transform: translate(-50%, -50%);
+  animation: vSealPulse 2.6s ease-in-out infinite;
+}
+[data-template="vintage"] .script-title {
+  order: 1;
+  margin: 0 0 14px;
+  font-family: "Lora", serif;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--v-muted);
+}
+[data-template="vintage"] .cover-content h1 {
+  order: 2;
+  margin: 0;
+  font-family: var(--v-script);
+  font-weight: 400;
+  font-size: clamp(38px, 11vw, 50px);
+  line-height: 1.12;
+  color: var(--v-brown);
+}
+[data-template="vintage"] .cover-content h1 .amp {
+  font-family: "Ms Madi", cursive;
+  font-size: 1.1em;
+  line-height: 0.9;
+  color: #827771;
+}
+[data-template="vintage"] .ornament {
+  order: 3;
+  margin: 6px 0 10px;
+  font-size: 24px;
+  color: var(--v-gold);
+}
+[data-template="vintage"] .date {
+  order: 4;
+  margin: 0 0 8px;
+  font-family: "Lora", serif;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--v-muted);
+}
+[data-template="vintage"] .guest-line {
+  order: 5;
+  max-width: 300px;
+  margin: 0 0 22px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--v-muted);
+}
+[data-template="vintage"] #openInvite {
+  order: 6;
+  position: relative;
+  overflow: hidden;
+  padding: 12px 30px;
+}
+/* Vệt sáng chạy qua nút mở thiệp. */
+[data-template="vintage"] #openInvite::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 -100%;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: vShine 3s ease-in-out infinite;
+}
+
+/* Mở thiệp: phong bì bay lên, nền mờ dần (app.js gỡ bìa khi animation của #cover chạy xong). */
+[data-template="vintage"] .cover-screen.is-opening {
+  pointer-events: none;
+  animation: vCoverOut 1.1s ease forwards;
+}
+[data-template="vintage"] .cover-screen.is-opening .cover-content {
+  animation: vEnvelopeAway 0.95s cubic-bezier(0.55, -0.1, 0.7, 0.4) forwards;
+}
+
+/* Hoa rơi (app.js tạo các span, mỗi span có thời gian / độ lệch riêng). */
+[data-template="vintage"] .petals {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+[data-template="vintage"] .petals span {
+  position: absolute;
+  top: -30px;
+  width: var(--size, 14px);
+  height: calc(var(--size, 14px) * 0.7);
+  border-radius: 150% 0 150% 0;
+  background: var(--v-gold);
+  opacity: 0;
+  animation: vPetalFall 20s ease-in-out infinite;
+}
+[data-template="vintage"] .petals span:nth-child(3n + 1) { background: var(--v-cream); }
+[data-template="vintage"] .petals span:nth-child(3n + 2) { background: #b58b2f; }
+
+/* ---------- Nội dung: 1 cột giấy kem ở giữa, như thiệp điện thoại ---------- */
+[data-template="vintage"] .main-content {
+  width: min(560px, 100%);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding-bottom: 28px;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(201, 162, 74, 0.08), transparent 32%),
+    radial-gradient(circle at 88% 60%, rgba(89, 61, 44, 0.06), transparent 36%),
+    var(--v-paper);
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.35);
+}
+[data-template="vintage"] .section {
+  width: calc(100% - 32px);
+  padding: 34px 0;
+}
+[data-template="vintage"] .two-col,
+[data-template="vintage"] .rsvp-layout,
+[data-template="vintage"] .event-grid,
+[data-template="vintage"] .invite-grid {
+  grid-template-columns: 1fr;
+}
+[data-template="vintage"] .panel-card {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(89, 61, 44, 0.14);
+  border-radius: 13px;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+[data-template="vintage"] .eyebrow {
+  margin: 0 0 10px;
+  font-family: "Playfair Display", serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: none;
+  color: var(--v-brown);
+}
+[data-template="vintage"] .content-card p { color: var(--v-muted); }
+
+/* Nút */
+[data-template="vintage"] .primary-btn {
+  font-family: "Lora", serif;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--v-cream);
+  background: var(--v-brown);
+  box-shadow: 0 4px 14px rgba(89, 61, 44, 0.35);
+}
+[data-template="vintage"] .outline-btn {
+  font-family: "Lora", serif;
+  font-weight: 500;
+  color: var(--v-brown);
+  background: transparent;
+  border: 1px solid rgba(89, 61, 44, 0.45);
+}
+[data-template="vintage"] .round-btn {
+  color: var(--v-cream);
+  background: var(--v-brown);
+  border-color: rgba(236, 228, 216, 0.3);
+}
+[data-template="vintage"] .round-btn.active { background: var(--v-gold); color: var(--v-brown-dark); }
+[data-template="vintage"] .danger-btn { background: #7a2f24; }
+[data-template="vintage"] input,
+[data-template="vintage"] select,
+[data-template="vintage"] textarea {
+  border-color: rgba(89, 61, 44, 0.22);
+  border-radius: 10px;
+  color: var(--v-brown);
+}
+
+/* Thẻ nâu chữ kem (khung lời mời, lễ, lời cảm ơn): viền trong như thiệp in. */
+[data-template="vintage"] #story .invitation-side,
+[data-template="vintage"] .event-card,
+[data-template="vintage"] .thanks-card {
+  color: var(--v-cream);
+  background:
+    radial-gradient(circle at 20% 0, rgba(255, 255, 255, 0.07), transparent 45%),
+    radial-gradient(circle at 85% 100%, rgba(0, 0, 0, 0.2), transparent 50%),
+    var(--v-brown);
+  border: 0;
+  border-radius: 13px;
+  outline: 1px solid rgba(236, 228, 216, 0.28);
+  outline-offset: -8px;
+  box-shadow: var(--v-card-shadow);
+}
+[data-template="vintage"] #story .invitation-side .eyebrow,
+[data-template="vintage"] .thanks-card .eyebrow { color: var(--v-cream-soft); }
+[data-template="vintage"] #story .invitation-side p,
+[data-template="vintage"] .thanks-card p { color: var(--v-cream-soft); }
+
+/* ---------- Trang chủ: Save the date ---------- */
+[data-template="vintage"] .hero {
+  margin-top: 0;
+  padding: 52px 8px 24px;
+  background: none;
+  border: 0;
+}
+[data-template="vintage"] .hero h2 {
+  margin: 0 0 14px;
+  font-family: var(--v-script);
+  font-weight: 400;
+  font-size: clamp(36px, 10.5vw, 50px);
+  line-height: 1.1;
+}
+[data-template="vintage"] .hero h2 span { display: block; }
+[data-template="vintage"] .hero h2 .amp-inline {
+  font-family: "Ms Madi", cursive;
+  font-size: 1.05em;
+  line-height: 0.9;
+  color: #827771;
+}
+[data-template="vintage"] .hero h2::after {
+  content: "\2766";
+  display: block;
+  margin-top: 6px;
+  font-family: serif;
+  font-size: 22px;
+  color: var(--v-gold);
+}
+[data-template="vintage"] .hero-date {
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+}
+[data-template="vintage"] .hero-desc {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--v-muted);
+}
+[data-template="vintage"] .countdown {
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  max-width: 380px;
+}
+[data-template="vintage"] .countdown div {
+  padding: 12px 4px;
+  background: transparent;
+  border: 1px solid rgba(89, 61, 44, 0.27);
+  border-radius: 10px;
+}
+[data-template="vintage"] .countdown strong {
+  font-family: var(--v-serif);
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--v-brown);
+}
+[data-template="vintage"] .countdown span {
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--v-muted);
+}
+
+/* Lịch tháng cưới (app.js). */
+[data-template="vintage"] .calendar {
+  max-width: 340px;
+  margin: 0 auto 24px;
+  padding: 14px 14px 12px;
+  border: 1px solid rgba(89, 61, 44, 0.27);
+  border-radius: 10px;
+}
+[data-template="vintage"] .calendar-title {
+  margin: 0 0 6px;
+  font-family: "Ms Madi", cursive;
+  font-size: 32px;
+  line-height: 1.2;
+}
+[data-template="vintage"] .calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 2px;
+  font-size: 13px;
+}
+[data-template="vintage"] .calendar-grid b {
+  padding: 4px 0 6px;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--v-muted);
+}
+[data-template="vintage"] .calendar-grid span {
+  position: relative;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  height: 32px;
+}
+[data-template="vintage"] .calendar-grid .is-wedding {
+  font-weight: 700;
+  color: var(--v-cream);
+}
+[data-template="vintage"] .calendar-grid .is-wedding::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23593d2c' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") center / contain no-repeat;
+  animation: vHeartBeat 1.6s ease-in-out infinite;
+}
+
+/* ---------- Ảnh cặp đôi + lời mời ---------- */
+[data-template="vintage"] #story { gap: 30px; }
+[data-template="vintage"] #story .photo-frame,
+[data-template="vintage"] #story .invitation-side { min-height: 0; }
+[data-template="vintage"] #story .photo-frame {
+  width: min(100% - 40px, 360px);
+  margin: 0 auto;
+  padding: 10px 10px 36px;
+  background: #fff;
+  box-shadow: var(--v-card-shadow);
+  transform: rotate(-2.5deg);
+}
+[data-template="vintage"] #story .photo-frame img {
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: none;
+}
+[data-template="vintage"] #story .invitation-side { padding: 36px 28px; }
+[data-template="vintage"] .invitation-side h3,
+[data-template="vintage"] .content-card h3,
+[data-template="vintage"] .section-heading h3,
+[data-template="vintage"] .thanks-card h3 {
+  margin: 0 0 14px;
+  font-family: "Times New Roman", var(--v-serif);
+  font-size: clamp(20px, 5.4vw, 24px);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+[data-template="vintage"] .invite-grid > div {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid rgba(236, 228, 216, 0.28);
+  border-radius: 0;
+  padding: 14px 6px 4px;
+}
+[data-template="vintage"] .invite-grid span {
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  color: var(--v-cream-soft);
+}
+[data-template="vintage"] .invite-grid strong {
+  font-weight: 400;
+  font-size: 17px;
+  color: var(--v-cream);
+}
+
+/* ---------- Tiêu đề các phần ---------- */
+[data-template="vintage"] .section-heading {
+  margin-bottom: 18px;
+  padding: 0;
+  background: none;
+  border: 0;
+}
+[data-template="vintage"] .section-heading h3::after,
+[data-template="vintage"] .gift-card h3::after {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 1px;
+  margin: 12px auto 0;
+  background: currentColor;
+  opacity: 0.4;
+}
+
+/* ---------- Lễ ---------- */
+[data-template="vintage"] .event-card { text-align: center; }
+[data-template="vintage"] .event-card img {
+  width: min(100% - 56px, 300px);
+  margin-top: 28px;
+  border-radius: 10px;
+}
+[data-template="vintage"] .event-card > div { padding: 18px 28px 30px; }
+[data-template="vintage"] .badge {
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--v-cream);
+  background: transparent;
+  border: 1px solid rgba(236, 228, 216, 0.5);
+}
+[data-template="vintage"] .event-card h4 {
+  font-family: "Times New Roman", var(--v-serif);
+  font-size: 19px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+[data-template="vintage"] .event-time-block { border-bottom-color: rgba(236, 228, 216, 0.28); }
+[data-template="vintage"] .event-card p { color: var(--v-cream-soft); line-height: 1.7; }
+[data-template="vintage"] .event-card b { font-weight: 400; color: var(--v-cream); }
+[data-template="vintage"] .event-card .outline-btn {
+  margin-top: 8px;
+  color: var(--v-cream);
+  border-color: rgba(236, 228, 216, 0.6);
+}
+
+/* ---------- Album ---------- */
+[data-template="vintage"] .album-grid {
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+[data-template="vintage"] .album-item {
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(55, 38, 27, 0.22);
+}
+
+/* ---------- Hộp quà ---------- */
+[data-template="vintage"] #gift .photo-frame { display: none; }
+[data-template="vintage"] .gift-card {
+  text-align: center;
+  background: none;
+  border: 0;
+}
+[data-template="vintage"] .gift-box {
+  --gift-box: #6b4835;
+  --gift-lid: #593d2c;
+  --gift-ribbon: #c9a24a;
+  --gift-knot: #a8842f;
+  --gift-spark: #b58b2f;
+  --gift-dot: #e9cf96;
+  --gift-tag: #f3e7cf;
+  --gift-heart: #b5655a;
+  --gift-glow: #ecd9ab;
+  color: var(--v-brown);
+}
+[data-template="vintage"] .gift-card .gift-ornament { color: #b58b2f; }
+[data-template="vintage"] .gift-hint { font-family: "Lora", serif; font-weight: 500; }
+[data-template="vintage"] .gift-dialog { background: #f8f8f8; border-radius: 16px; }
+[data-template="vintage"] .gift-dialog-head { background: var(--v-brown); }
+[data-template="vintage"] .gift-dialog-head h4 { font-family: var(--v-serif); font-size: 16px; letter-spacing: 0.08em; }
+[data-template="vintage"] .gift-role { font-family: var(--v-serif); color: var(--v-brown); }
+[data-template="vintage"] .gift-action { color: var(--v-brown); }
+
+/* ---------- RSVP + lời cảm ơn ---------- */
+[data-template="vintage"] .rsvp-form label { font-weight: 400; }
+[data-template="vintage"] .guest-box h4 { font-family: "Times New Roman", var(--v-serif); }
+[data-template="vintage"] .thanks { background: none; }
+[data-template="vintage"] .thanks-card { padding: 40px 28px; }
+[data-template="vintage"] .thanks-card h3 {
+  font-family: var(--v-script);
+  font-size: clamp(30px, 8vw, 38px);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+@keyframes vSealPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.06); }
+}
+@keyframes vShine { 0% { left: -100%; } 50%, 100% { left: 100%; } }
+@keyframes vCoverOut { 0%, 55% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes vEnvelopeAway {
+  0% { transform: translateY(0) rotate(0); opacity: 1; }
+  15% { transform: translateY(10px) rotate(0.5deg); opacity: 1; }
+  100% { transform: translateY(-120vh) rotate(-2deg); opacity: 0; }
+}
+@keyframes vPetalFall {
+  0% { transform: translateY(-8vh) translateX(0) rotate(0); opacity: 0; }
+  10% { opacity: 0.55; }
+  50% { transform: translateY(48vh) translateX(var(--sway, 20px)) rotate(180deg); opacity: 0.65; }
+  92% { opacity: 0.45; }
+  100% { transform: translateY(105vh) translateX(0) rotate(360deg); opacity: 0; }
+}
+@keyframes vHeartBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-template="vintage"] .petals,
+  [data-template="vintage"] #openInvite::after { display: none; }
+  [data-template="vintage"] .cover-content::before,
+  [data-template="vintage"] .calendar-grid .is-wedding::before { animation: none; }
+}
